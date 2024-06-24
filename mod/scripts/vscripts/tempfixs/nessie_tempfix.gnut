@@ -1,0 +1,139 @@
+untyped
+
+const bool NESSIE_DEBUG = false
+
+global function Nessie_BaseGame_TempFix
+
+global function Nessie_Reaper_Spawnpoint
+
+#if NESSIE_DEBUG
+global function Debug_SpawnReaper
+#endif
+
+// copied from _ai_turret_sentry.gnut
+const DEAD_SENTRY_TURRET_FX		= $"P_impact_exp_med_air"
+const DEAD_SENTRY_TURRET_SFX	= "SentryTurret_DeathExplo"
+const SENTRY_TURRET_AIM_FX_RED = $"P_wpn_lasercannon_aim_short"
+const SENTRY_TURRET_AIM_FX_BLUE = $"P_wpn_lasercannon_aim_short_blue"
+
+void function Nessie_BaseGame_TempFix()
+{
+    AddCallback_OnPlayerKilled( StartAttackerHighlight )
+	// nobody uses evac
+	//AddCallback_OnPlayerKilled( ForceEvacShipLeave )
+
+    // copied from _ai_turret_sentry.gnut
+    PrecacheParticleSystem( SENTRY_TURRET_AIM_FX_RED )
+	PrecacheParticleSystem( SENTRY_TURRET_AIM_FX_BLUE )
+	PrecacheParticleSystem( $"P_ar_titan_droppoint" )
+    AddSpawnCallback( "npc_turret_sentry", LightTurretSpawnFunction )
+	AddDeathCallback( "npc_turret_sentry", LightTurretDeathFX )
+}
+
+void function StartAttackerHighlight( entity victim, entity attacker, var damageInfo )
+{
+	if( !IsValid( attacker ) )
+		return
+	if( attacker == victim )
+		return
+	if( !attacker.IsPlayer() && !attacker.IsNPC() )
+		return
+		
+	Highlight_SetDeathRecapHighlight( attacker, "killer_outline" )
+}
+
+// copied from _ai_turret_sentry.gnut
+void function LightTurretDeathFX( entity turret, var damageInfo )
+{
+	turret.SetBodygroup( 0, 1 )
+
+	int turretEHandle = turret.GetEncodedEHandle()
+	array<entity> players = GetPlayerArray()
+	foreach( player in players )
+	{
+		Remote_CallFunction_Replay( player, "ServerCallback_TurretRefresh", turretEHandle )
+	}
+
+	EmitSoundAtPosition( turret.GetTeam(), turret.GetOrigin(), DEAD_SENTRY_TURRET_SFX )
+	PlayFX( DEAD_SENTRY_TURRET_FX, turret.GetOrigin() + Vector( 0,0,38 ) )	// played with a slight offset as requested by BigRig
+}
+
+void function LightTurretSpawnFunction( entity turret )
+{
+ 	turret.UnsetUsable()
+
+//	float windupTime = TurretGetWindupTime( turret )
+//	if ( windupTime > 0 )
+//		thread HACK_TurretManagePreAttack( turret, OnWindupBegin_SentryTurret, OnWindupEnd_Turret )
+//
+	if ( turret.Dev_GetAISettingByKeyField( "aim_laser_disabled" ) )
+		return
+
+	thread SentryTurretAimLaser( turret )
+}
+
+void function SentryTurretAimLaser( entity turret )
+{
+	entity fx1 = PlayLoopFXOnEntity( SENTRY_TURRET_AIM_FX_RED, turret, "camera_glow", null, null, ENTITY_VISIBLE_TO_ENEMY )
+	entity fx2 = PlayLoopFXOnEntity( SENTRY_TURRET_AIM_FX_BLUE, turret, "camera_glow", null, null, ENTITY_VISIBLE_TO_FRIENDLY )
+
+	OnThreadEnd(
+		function() : ( fx1, fx2 )
+		{
+			if ( IsValid( fx1 ) )
+				EffectStop( fx1 )
+			if ( IsValid( fx2 ) )
+				EffectStop( fx2 )
+		}
+	)
+
+	WaitSignal( turret, "OnDeath" )
+}
+
+// copied from cl_replacement_titan_hud.gnut
+void function Nessie_Reaper_Spawnpoint( vector origin, int team, float impactTime )
+{
+	array<entity> targetEffects = []
+	vector surfaceNormal = < 0, 0, 1 >
+
+	int index = GetParticleSystemIndex( $"P_ar_titan_droppoint" )
+
+	/* idk if official server has a friendly warning
+	entity effectFriendly = StartParticleEffectInWorld_ReturnEntity( index, origin, surfaceNormal )
+	SetTeam( effectFriendly, team )
+	EffectSetControlPointVector( effectFriendly, 1, < 128,188,255 > )
+	effectFriendly.kv.VisibilityFlags = ENTITY_VISIBLE_TO_FRIENDLY
+	targetEffects.append( effectFriendly )
+	*/
+
+	entity effectEnemy = StartParticleEffectInWorld_ReturnEntity( index, origin, surfaceNormal )
+	SetTeam( effectEnemy, team )
+	EffectSetControlPointVector( effectEnemy, 1, < 255,99,0 > )
+	effectEnemy.kv.VisibilityFlags = ENTITY_VISIBLE_TO_ENEMY
+	targetEffects.append( effectEnemy )
+	
+	wait impactTime
+
+	foreach( entity targetEffect in targetEffects )
+	{
+		if ( IsValid( targetEffect ) )
+			EffectStop( targetEffect )
+	}
+}
+
+// DEBUG THINGS
+#if NESSIE_DEBUG
+void function Debug_SpawnReaper( entity player, int amount )
+{
+	vector origin = GetPlayerCrosshairOrigin( player )
+	vector angles = < 0,0,0 >
+	int team = player.GetTeam()
+
+	for( int i = 0; i < amount; i++ )
+	{
+		thread AiGameModes_SpawnReaper( origin - < (i+1)*150,0,0 >, angles, team, "npc_super_spectre_aitdm" )
+		thread AiGameModes_SpawnReaper( origin + < (i+1)*150,0,0 >, angles, GetOtherTeam(team), "npc_super_spectre_aitdm" )
+	}
+}
+
+#endif
