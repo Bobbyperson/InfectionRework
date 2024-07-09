@@ -375,7 +375,6 @@ ClServer_MessageStruct function HardmodeChat(ClServer_MessageStruct message)
 			if ( player.GetTeam() == INFECTION_TEAM_SURVIVOR && file.hardmode[player] == false && GameTime_TimeLeftSeconds() >= ( 300.0 ) && file.hasHadFirstInfection ) {
 				GetFuckedLoser( player )
 				file.hardmode[player] = true
-				printt("hardmode|" + player.GetPlayerName())
 			} else {
 				NSSendInfoMessageToPlayer(player, "NO!!!!!!!")
 			}
@@ -454,12 +453,6 @@ void function SelectFirstInfectedDelayed()
 	array<entity> players = GetPlayerArray()
 	int selected = RandomInt( players.len() )
 	entity infected = players[ selected ]
-
-	printt("first infected wowie")
-	printt(selected)
-	printt(players.len())
-
-	printt("firstinfected|" + infected.GetPlayerName())
 
 	InfectPlayer( infected, infected )
 	RespawnInfected( infected )
@@ -570,11 +563,6 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 	if ( !victim.IsPlayer() || !attacker.IsPlayer() || GetGameState() != eGameState.Playing || !IsValid( attacker ) || !IsValid( victim ) )
 		return
 
-	if ( file.killstreak[victim] > 9 ){
-		Chat_ServerBroadcast("\x1b[97m<< \x1b[91m"+attacker.GetPlayerName()+" \x1b[97mended \x1b[36m"+victim.GetPlayerName()+"'s \x1b[97mKillstreak "+file.killstreak[victim]+" \x1b[97m>>", false)
-		printt("killend|" + attacker.GetPlayerName() + "|" + file.killstreak[victim] + "|" + victim.GetPlayerName())
-	}
-
 	file.killstreak[victim] <- 0
 
 	if ( attacker.IsPlayer() && victim != attacker ) 
@@ -589,34 +577,7 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 			file.killstreak[attacker] += 1
 			file.deathstreak[victim] += 1
 			int kills = file.killstreak[attacker]
-
-			printt("killstreak|" + attacker.GetPlayerName() + "|" + kills)
-
-			if(kills==5) // might've been yoinked from diqhed
-				{
-					Chat_ServerBroadcast("\x1b[97m<< \x1b[96m"+attacker.GetPlayerName()+" \x1b[97mis on a \x1b[32mKILLING SPREE "+kills+" \x1b[97m>>", false)
-				}
-			if(kills==10)
-				{
-					Chat_ServerBroadcast("\x1b[97m<< \x1b[96m"+attacker.GetPlayerName()+" \x1b[97mis \x1b[31mUNSTOPPABLE "+kills+" \x1b[97m>>", false)
-				}
-			if(kills==15)
-				{
-					Chat_ServerBroadcast("\x1b[97m<< \x1b[96m"+attacker.GetPlayerName()+" \x1b[97mis on a \x1b[35mRAMPAGE "+kills+" \x1b[97m>>", false)
-				}
-			if(kills==20)
-				{
-					Chat_ServerBroadcast("\x1b[97m<< \x1b[96m"+attacker.GetPlayerName()+" \x1b[97mis \x1b[33mGOD-LIKE "+kills+" \x1b[97m>>", false)
-				}
-			if(kills==25 || kills==30 || kills==35 || kills==40 || kills==45 || kills==50 || kills==55 || kills==60 || kills==65 || kills==70 || kills==75 || kills==80 || kills==85 || kills==90 || kills==95)
-				{
-					Chat_ServerBroadcast("\x1b[97m<< \x1b[96m"+attacker.GetPlayerName()+" \x1b[97mis still \x1b[33mGOD-LIKE "+kills+" \x1b[97m>>", false)
-				}
-			if(kills==100)
-				{
-					Chat_ServerBroadcast("\x1b[97m<< \x1b[96m"+attacker.GetPlayerName()+" \x1b[97mis \x1b[91mFUCKING CHEATING "+kills+" \x1b[97m>>", false)
-					Chat_ServerBroadcast("\x1b[90m(I'm not tracking these kills anymore you're on your own)")
-				}
+			
 
 			// if the killstreak is a multiple of 5 (5, 10, 15, etc), give a random boost
 			if ( file.killstreak[attacker] > 4 && ( file.killstreak[attacker] % 5 == 0 ) && MapSettings_SupportsTitans( GetMapName() ) ) // prevents killstreaks on lf and coliseum
@@ -768,7 +729,6 @@ void function RespawnInfected( entity player )
 
 	if (file.hardmode[player] == true) {
 		file.hardmode[player] = false
-		printt("hardmodeloss|" + player.GetPlayerName())
 	}
 
 	// notify newly infected players of infection
@@ -1185,13 +1145,6 @@ void function OnWinnerDetermined()
 	SetKillcamsEnabled( false ) // apparently does not affect final killcam
 	if (RandomInt(10) == 1) {
 		Chat_ServerBroadcast("gg", true)
-	}
-	foreach (entity player in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) ) {
-		int kills = file.killstreak[player]
-		printt("killstreakend|" + player.GetPlayerName() + "|" + kills)
-		if (file.hardmode[player] == true){
-			printt("hardmodewin|" + player.GetPlayerName())
-		}
 	}
 	if (GetPlayerArray().len() > 3) {
 		foreach (entity player in GetPlayerArray()) {
