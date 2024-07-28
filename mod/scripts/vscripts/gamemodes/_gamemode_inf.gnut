@@ -626,27 +626,27 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 			// attacker is infected and got a kill
 			file.deathstreak[attacker] <- 0
 
-			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution && GetGameState() == eGameState.Playing ) // 4 March 2024, if died to execution drop gun
+			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution && GetGameState() == eGameState.Playing && attacker.GetTeam() == INFECTION_TEAM_INFECTED ) // 4 March 2024, if died to execution drop gun
 			{
 				array<entity> weapons = GetPrimaryWeapons( victim )
 				entity weapon = weapons[0]
-				victim.TakeWeaponNow( weapon.GetWeaponClassName() )
-				vector origin = victim.GetOrigin()
-				vector angles = Vector( 0, 0, 0 )
-				entity newweapon = CreateWeaponEntityByNameWithPhysics( weapon.GetWeaponClassName(), origin, angles )
-
-				newweapon.SetMods( weapon.GetMods() )
-				newweapon.SetWeaponSkin( weapon.GetSkin() )
-				newweapon.SetWeaponCamo( weapon.GetCamo() )
-				if ( weapon.GetProScreenOwner() == victim )
-				{
-					newweapon.SetProScreenOwner( victim )
-					if ( newweapon.HasMod( "pro_screen" ) )
-						UpdateProScreen( victim, newweapon )
-				}
-				newweapon.SetWeaponPrimaryAmmoCount( weapon.GetWeaponPrimaryAmmoCount() )
-				if ( newweapon.GetWeaponPrimaryClipCountMax() > 0 )
-					newweapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() )
+				// victim.TakeWeaponNow( weapon.GetWeaponClassName() )
+				// vector origin = victim.GetOrigin()
+				// vector angles = Vector( 0, 0, 0 )
+				// entity newweapon = CreateWeaponEntityByNameWithPhysics( weapon.GetWeaponClassName(), origin, angles )
+				attacker.GiveWeapon( weapon.GetWeaponClassName() )
+				// newweapon.SetMods( weapon.GetMods() )
+				// newweapon.SetWeaponSkin( weapon.GetSkin() )
+				// newweapon.SetWeaponCamo( weapon.GetCamo() )
+				// if ( weapon.GetProScreenOwner() == victim )
+				// {
+				// 	newweapon.SetProScreenOwner( victim )
+				// 	if ( newweapon.HasMod( "pro_screen" ) )
+				// 		UpdateProScreen( victim, newweapon )
+				// }
+				// newweapon.SetWeaponPrimaryAmmoCount( weapon.GetWeaponPrimaryAmmoCount() )
+				// if ( newweapon.GetWeaponPrimaryClipCountMax() > 0 )
+				// 	newweapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() )
 			}
 		}
 	}
