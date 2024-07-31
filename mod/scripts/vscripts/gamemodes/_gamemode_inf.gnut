@@ -1146,6 +1146,7 @@ void function OnWinnerDetermined()
 	if (RandomInt(10) == 1) {
 		Chat_ServerBroadcast("gg", true)
 	}
+	wait 5.0
 	if (GetPlayerArray().len() > 3) {
 		foreach (entity player in GetPlayerArray()) {
 			if ( IsValid(player) ) { // this crashed due to someone leaving once. now isvalid will be here to stay forever. lol.
