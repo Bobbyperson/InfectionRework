@@ -631,22 +631,22 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 				array<entity> weapons = GetPrimaryWeapons( victim )
 				entity weapon = weapons[0]
 				// victim.TakeWeaponNow( weapon.GetWeaponClassName() )
-				// vector origin = victim.GetOrigin()
-				// vector angles = Vector( 0, 0, 0 )
-				// entity newweapon = CreateWeaponEntityByNameWithPhysics( weapon.GetWeaponClassName(), origin, angles )
-				attacker.GiveWeapon( weapon.GetWeaponClassName() )
-				// newweapon.SetMods( weapon.GetMods() )
-				// newweapon.SetWeaponSkin( weapon.GetSkin() )
-				// newweapon.SetWeaponCamo( weapon.GetCamo() )
-				// if ( weapon.GetProScreenOwner() == victim )
-				// {
-				// 	newweapon.SetProScreenOwner( victim )
-				// 	if ( newweapon.HasMod( "pro_screen" ) )
-				// 		UpdateProScreen( victim, newweapon )
-				// }
-				// newweapon.SetWeaponPrimaryAmmoCount( weapon.GetWeaponPrimaryAmmoCount() )
-				// if ( newweapon.GetWeaponPrimaryClipCountMax() > 0 )
-				// 	newweapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() )
+				vector origin = victim.GetOrigin() + Vector( 0, 0, 100 )
+				vector angles = Vector( 0, 0, 0 )
+				entity newweapon = CreateWeaponEntityByNameWithPhysics( weapon.GetWeaponClassName(), origin, angles )
+				// attacker.GiveWeapon( weapon.GetWeaponClassName() )
+				newweapon.SetMods( weapon.GetMods() )
+				newweapon.SetWeaponSkin( weapon.GetSkin() )
+				newweapon.SetWeaponCamo( weapon.GetCamo() )
+				if ( weapon.GetProScreenOwner() == victim )
+				{
+					newweapon.SetProScreenOwner( victim )
+					if ( newweapon.HasMod( "pro_screen" ) )
+						UpdateProScreen( victim, newweapon )
+				}
+				newweapon.SetWeaponPrimaryAmmoCount( weapon.GetWeaponPrimaryAmmoCount() )
+				if ( newweapon.GetWeaponPrimaryClipCountMax() > 0 )
+					newweapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() )
 			}
 		}
 	}
@@ -985,7 +985,7 @@ void function CountdownToEvac()
 {
 	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 	wait 10.0
-	while ( survivors.len() != 1 )
+	while ( true )
 	{
 		survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 
@@ -1103,8 +1103,11 @@ void function SetLastSurvivor( entity player )
 	if ( (SpawnPoints_GetTitan().len() > 0) && (GameTime_TimeLeftSeconds() > 45) && !file.evacCame && (playerCount > 7)) {
 		thread CreateTitanForPlayerAndHotdrop( player, GetTitanReplacementPoint( player, false ) )
 	}
-	if ( GameTime_TimeLeftSeconds() > 45 && playerCount > 7 )
+	if ( GameTime_TimeLeftSeconds() > 45 && playerCount > 7 && !file.evacCame )
+	{
 		SetServerVar( "gameEndTime", Time() + 45.0 )
+		PlayMusicToAll( eMusicPieceID.LEVEL_LAST_MINUTE )
+	}
 
 	file.hasHadLastInfection = true
 
@@ -1146,6 +1149,12 @@ void function OnWinnerDetermined()
 	if (RandomInt(10) == 1) {
 		Chat_ServerBroadcast("gg", true)
 	}
+	thread OnWinnerDetermined_Threaded()
+
+}
+
+void function OnWinnerDetermined_Threaded()
+{
 	wait 5.0
 	if (GetPlayerArray().len() > 3) {
 		foreach (entity player in GetPlayerArray()) {
