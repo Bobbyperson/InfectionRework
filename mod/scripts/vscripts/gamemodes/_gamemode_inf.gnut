@@ -631,22 +631,22 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 				array<entity> weapons = GetPrimaryWeapons( victim )
 				entity weapon = weapons[0]
 				// victim.TakeWeaponNow( weapon.GetWeaponClassName() )
-				vector origin = victim.GetOrigin() + Vector( 0, 0, 100 )
-				vector angles = Vector( 0, 0, 0 )
-				entity newweapon = CreateWeaponEntityByNameWithPhysics( weapon.GetWeaponClassName(), origin, angles )
-				// attacker.GiveWeapon( weapon.GetWeaponClassName() )
-				newweapon.SetMods( weapon.GetMods() )
-				newweapon.SetWeaponSkin( weapon.GetSkin() )
-				newweapon.SetWeaponCamo( weapon.GetCamo() )
-				if ( weapon.GetProScreenOwner() == victim )
-				{
-					newweapon.SetProScreenOwner( victim )
-					if ( newweapon.HasMod( "pro_screen" ) )
-						UpdateProScreen( victim, newweapon )
-				}
-				newweapon.SetWeaponPrimaryAmmoCount( weapon.GetWeaponPrimaryAmmoCount() )
-				if ( newweapon.GetWeaponPrimaryClipCountMax() > 0 )
-					newweapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() )
+				// vector origin = victim.GetOrigin() + Vector( 0, 0, 100 )
+				// vector angles = Vector( 0, 0, 0 )
+				// entity newweapon = CreateWeaponEntityByNameWithPhysics( weapon.GetWeaponClassName(), origin, angles )
+				attacker.GiveWeapon( weapon.GetWeaponClassName() )
+				// newweapon.SetMods( weapon.GetMods() )
+				// newweapon.SetWeaponSkin( weapon.GetSkin() )
+				// newweapon.SetWeaponCamo( weapon.GetCamo() )
+				// if ( weapon.GetProScreenOwner() == victim )
+				// {
+				// 	newweapon.SetProScreenOwner( victim )
+				// 	if ( newweapon.HasMod( "pro_screen" ) )
+				// 		UpdateProScreen( victim, newweapon )
+				// }
+				// newweapon.SetWeaponPrimaryAmmoCount( weapon.GetWeaponPrimaryAmmoCount() )
+				// if ( newweapon.GetWeaponPrimaryClipCountMax() > 0 )
+				// 	newweapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() )
 			}
 		}
 	}
@@ -811,7 +811,6 @@ void function RespawnInfected( entity player )
 		player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
 	}
 
-	thread GiveAirAccel( player )
 	thread PlayInfectedSounds( player )
 	thread DisplayMutation( player, rocketRoll, ordnanceRoll )
 }
@@ -1038,15 +1037,6 @@ void function InfectedEvac() // mostly deprecated
 void function NoInfect() // used for events in-game
 {
 	file.hasHadFirstInfection = true
-}
-
-void function GiveAirAccel( entity player )
-{
-	WaitFrame()
-	if (GetCurrentPlaylistVarInt( "custom_air_accel_pilot", int( player.GetPlayerSettingsField( "airAcceleration" ) ) ) < 500)
-		player.kv.airAcceleration = 500 // prevents sh_custom_air_accel from not giving infected air acceleration.
-	else
-		player.kv.airAcceleration = GetCurrentPlaylistVarInt( "custom_air_accel_pilot", int( player.GetPlayerSettingsField( "airAcceleration" ) ) )
 }
 
 void function PlayInfectedSounds( entity player )
