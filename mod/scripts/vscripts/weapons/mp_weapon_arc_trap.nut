@@ -142,8 +142,8 @@ void function DeployArcTrap( entity projectile )
 		return
 	}
 
-    if ( GAMETYPE == GAMEMODE_INFECTION )
-        projectile.e.embarkCount = ARC_TRAP_USES
+	if ( GAMETYPE == GAMEMODE_INFECTION )
+		projectile.e.embarkCount = ARC_TRAP_USES
 
 	entity owner = projectile.GetOwner()
 	entity mover = CreateScriptMover( projectile.GetOrigin() )
@@ -345,12 +345,12 @@ void function ActivateArcTrap( entity owner, entity mover, entity projectile, en
 			if ( IsValid( mover ) )
 				DestroyBallLightningOnEnt( mover )
 
-            if ( GAMETYPE == GAMEMODE_INFECTION )
-            {
-                projectile.e.embarkCount = projectile.e.embarkCount - 1
-                if ( IsValid( projectile ) && projectile.e.embarkCount == 0 )
-                    projectile.Destroy()
-            }
+			if ( GAMETYPE == GAMEMODE_INFECTION )
+			{
+				projectile.e.embarkCount = projectile.e.embarkCount - 1
+				if ( IsValid( projectile ) && projectile.e.embarkCount == 0 )
+					projectile.Destroy()
+			}
 
 		}
 	)
