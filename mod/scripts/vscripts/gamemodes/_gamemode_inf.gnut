@@ -203,37 +203,37 @@ void function GamemodeInfection_Init()
 }
 
 void function Playing(){
-    AddCallback_OnClientConnected( AddPlayerCallbacks )
-    AddCallback_OnClientDisconnected( DeletePlayerRecords )
-    AddCallback_OnPlayerRespawned( Moved )
+	AddCallback_OnClientConnected( AddPlayerCallbacks )
+	AddCallback_OnClientDisconnected( DeletePlayerRecords )
+	AddCallback_OnPlayerRespawned( Moved )
 
-    foreach (entity player in GetPlayerArray()){
-        AddPlayerCallbacks( player )
+	foreach (entity player in GetPlayerArray()){
+		AddPlayerCallbacks( player )
 		file.moved[ player ] <- false
-    }
+	}
 }
 
 void function DeletePlayerRecords( entity player ){
-    if (player in file.moved){
-        delete file.moved[ player ]
-    }
+	if (player in file.moved){
+		delete file.moved[ player ]
+	}
 }
 
 void function AddPlayerCallbacks( entity player ){
 	file.moved[player] <- false
-    AddPlayerPressedForwardCallback( player, bMoved )
-    AddPlayerPressedBackCallback( player, bMoved )
-    AddPlayerPressedLeftCallback( player, bMoved )
-    AddPlayerPressedRightCallback( player, bMoved )
+	AddPlayerPressedForwardCallback( player, bMoved )
+	AddPlayerPressedBackCallback( player, bMoved )
+	AddPlayerPressedLeftCallback( player, bMoved )
+	AddPlayerPressedRightCallback( player, bMoved )
 }
 
 void function Moved( entity player ){
-    file.moved[ player ] <- true
+	file.moved[ player ] <- true
 }
 
 bool function bMoved( entity player ){
-    Moved( player )
-    return true
+	Moved( player )
+	return true
 }
 
 void function InfectionInitPlayer( entity player )
@@ -361,12 +361,12 @@ ClServer_MessageStruct function HardmodeChat(ClServer_MessageStruct message)
 	string msg = message.message.tolower()
 
 	if (msg.len() == 0 ) // if the message is empty or if there's already infected in the game
-        return message
+		return message
 
-    if (format("%c", msg[0]) == "!") {
-        printl("Chat Command Found")
-        // command
-        msg = msg.slice(1) // remove !
+	if (format("%c", msg[0]) == "!") {
+		printl("Chat Command Found")
+		// command
+		msg = msg.slice(1) // remove !
 
 		if (msg == "hardmode")
 		{
@@ -379,8 +379,8 @@ ClServer_MessageStruct function HardmodeChat(ClServer_MessageStruct message)
 				NSSendInfoMessageToPlayer(player, "NO!!!!!!!")
 			}
 		}
-    }
-    return message
+	}
+	return message
 }
 
 void function GetFuckedLoser( entity player )
@@ -410,69 +410,69 @@ void function GetFuckedLoser( entity player )
 
 void function HighlightHardmode( entity player )
 {
-    player.EndSignal( "OnDeath" )
-    player.EndSignal( "OnDestroy" )
+	player.EndSignal( "OnDeath" )
+	player.EndSignal( "OnDestroy" )
 
-    var lastHighlightTime = Time()
-    var highlightDuration = 5.0
-    var cooldownDuration = 5.0
+	var lastHighlightTime = Time()
+	var highlightDuration = 5.0
+	var cooldownDuration = 5.0
 	array<int> ids = []
 
-    while ( IsAlive(player) )
-    {
-        WaitFrame()
-        vector playerVelV = player.GetVelocity()
-        float playerVel = sqrt( playerVelV.x * playerVelV.x + playerVelV.y * playerVelV.y ) // not counting vertical velocity
-        float playerVelNormal = playerVel * (0.091392) // metric kph
+	while ( IsAlive(player) )
+	{
+		WaitFrame()
+		vector playerVelV = player.GetVelocity()
+		float playerVel = sqrt( playerVelV.x * playerVelV.x + playerVelV.y * playerVelV.y ) // not counting vertical velocity
+		float playerVelNormal = playerVel * (0.091392) // metric kph
 
-        // 0 - 45 kph is highlighted
-        if ( playerVelNormal < 45 )
-        {
-            Highlight_SetEnemyHighlight( player, "enemy_boss_bounty" )
-            ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
+		// 0 - 45 kph is highlighted
+		if ( playerVelNormal < 45 )
+		{
+			Highlight_SetEnemyHighlight( player, "enemy_boss_bounty" )
+			ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
 			lastHighlightTime = Time()
-        }
-        // 46 - 65 kph is highlighted for 5 seconds every 10 seconds, 
+		}
+		// 46 - 65 kph is highlighted for 5 seconds every 10 seconds, 
 		// once you reach this speed from below 45 kph, you will remain highlighted for 5 seconds before clearing the highlight, then reapplying it after another 5 seconds
-        else if ( playerVelNormal >= 45 && playerVelNormal < 66 )
-        {
-            if ( Time() - lastHighlightTime > cooldownDuration + highlightDuration )
-            {
-                Highlight_SetEnemyHighlight( player, "enemy_boss_bounty" )
-                ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
-                lastHighlightTime = Time()
-            }
-            else if ( Time() - lastHighlightTime > highlightDuration )
-            {
-                Highlight_ClearEnemyHighlight( player )
-                foreach ( id in ids )
+		else if ( playerVelNormal >= 45 && playerVelNormal < 66 )
+		{
+			if ( Time() - lastHighlightTime > cooldownDuration + highlightDuration )
+			{
+				Highlight_SetEnemyHighlight( player, "enemy_boss_bounty" )
+				ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
+				lastHighlightTime = Time()
+			}
+			else if ( Time() - lastHighlightTime > highlightDuration )
+			{
+				Highlight_ClearEnemyHighlight( player )
+				foreach ( id in ids )
 					StatusEffect_Stop( player, id )
-            }
-        }
-        // 66 - 79 kph is highlighted for 5 seconds every 15 seconds
-        else if ( playerVelNormal >= 65 && playerVelNormal < 80 )
-        {
-            if ( Time() - lastHighlightTime > cooldownDuration + highlightDuration + 5.0 )
-            {
-                Highlight_SetEnemyHighlight( player, "enemy_boss_bounty" )
-                ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
-                lastHighlightTime = Time()
-            }
-            else if ( Time() - lastHighlightTime > highlightDuration)
-            {
-                Highlight_ClearEnemyHighlight( player )
-                foreach ( id in ids )
+			}
+		}
+		// 66 - 79 kph is highlighted for 5 seconds every 15 seconds
+		else if ( playerVelNormal >= 65 && playerVelNormal < 80 )
+		{
+			if ( Time() - lastHighlightTime > cooldownDuration + highlightDuration + 5.0 )
+			{
+				Highlight_SetEnemyHighlight( player, "enemy_boss_bounty" )
+				ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
+				lastHighlightTime = Time()
+			}
+			else if ( Time() - lastHighlightTime > highlightDuration)
+			{
+				Highlight_ClearEnemyHighlight( player )
+				foreach ( id in ids )
 					StatusEffect_Stop( player, id )
-            }
-        }
-        // 80+ kph is not highlighted
-        else
-        {
-            Highlight_ClearEnemyHighlight( player )
+			}
+		}
+		// 80+ kph is not highlighted
+		else
+		{
+			Highlight_ClearEnemyHighlight( player )
 			foreach ( id in ids )
 				StatusEffect_Stop( player, id )
-        }
-    }
+		}
+	}
 }
 
 // ===============================================================================
@@ -1502,8 +1502,8 @@ void function AddPlayerToEvacDropship( entity dropship, entity player )
 	if ( !PlayerInDropship( player, dropship ) )
 		return
 
-    // need to cancel if the dropship dies
-    dropship.EndSignal( "OnDeath", "OnDestroy" )
+	// need to cancel if the dropship dies
+	dropship.EndSignal( "OnDeath", "OnDestroy" )
 
 	player.SetInvulnerable()
 	player.UnforceCrouch()
