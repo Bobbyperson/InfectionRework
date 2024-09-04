@@ -372,7 +372,7 @@ ClServer_MessageStruct function HardmodeChat(ClServer_MessageStruct message)
 		{
 			message.shouldBlock = true
 			entity player = message.player
-			if ( player.GetTeam() == INFECTION_TEAM_SURVIVOR && file.hardmode[player] == false && GameTime_TimeLeftSeconds() >= ( 300.0 ) && file.hasHadFirstInfection ) {
+			if ( player.GetTeam() == INFECTION_TEAM_SURVIVOR && file.hardmode[player] == false && GameTime_TimeLeftSeconds() >= ( 300.0 ) ) {
 				GetFuckedLoser( player )
 				file.hardmode[player] = true
 			} else {
@@ -498,7 +498,6 @@ void function SelectFirstInfectedDelayed()
 	wait 5.0 + RandomFloat( 5.0 )
 	SetLoadoutGracePeriodEnabled( false )
 	WaitFrame()
-	ServerCommand("melee_lunge_scale_by_speed 0");
 	ServerCommand("sv_alltalk 1");
 	ServerCommand("slide_step_velocity_reduction 10");
 	ServerCommand("sv_gravity 750");
@@ -522,6 +521,9 @@ void function SelectFirstInfectedDelayed()
 	array<entity> players = GetPlayerArray()
 	int selected = RandomInt( players.len() )
 	entity infected = players[ selected ]
+
+	if (file.hardmode[infected] == true) {
+		infected = players[ RandomInt( players.len() ) ]
 
 	InfectPlayer( infected, infected )
 	RespawnInfected( infected )
