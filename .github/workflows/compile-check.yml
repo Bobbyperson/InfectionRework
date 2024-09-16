@@ -1,0 +1,19 @@
+# This action checks whether all Squirrel files compile successfully using standalone Squirrel compiler
+name: compile-check
+
+on: [push, pull_request]
+
+jobs:
+  compile:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          path: "mods"
+      
+      - name: Compile Scripts
+        uses: ASpoonPlaysGames/squirrel-re-compiler@v3
+        with:
+          mods-directory: "${{ github.workspace }}/mods"
+          native-json: "${{ github.workspace }}/mods/.github/nativefuncs.json"
