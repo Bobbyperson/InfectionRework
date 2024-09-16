@@ -524,6 +524,7 @@ void function SelectFirstInfectedDelayed()
 
 	if (file.hardmode[infected] == true) {
 		infected = players[ RandomInt( players.len() ) ]
+	}
 
 	InfectPlayer( infected, infected )
 	RespawnInfected( infected )
