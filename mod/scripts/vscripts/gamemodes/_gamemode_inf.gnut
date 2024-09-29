@@ -700,7 +700,11 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 
 			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution && GetGameState() == eGameState.Playing && attacker.GetTeam() == INFECTION_TEAM_INFECTED ) // 4 March 2024, if died to execution drop gun
 			{
+				if ( !IsValid( victim ) )
+					return
 				array<entity> weapons = GetPrimaryWeapons( victim )
+				if ( weapons.len() == 0 )
+					return
 				entity weapon = weapons[0]
 				// victim.TakeWeaponNow( weapon.GetWeaponClassName() )
 				// vector origin = victim.GetOrigin() + Vector( 0, 0, 100 )
