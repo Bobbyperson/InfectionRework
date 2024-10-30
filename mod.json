@@ -3,29 +3,5 @@
 	"Description": "Made for Bobbyperson, please test this lol.",
 	"LoadPriority": 3,
 	"RequiredOnClient": false,
-	"Version": "1.0",
-	
-	"Scripts": [
-		{
-			"Path": "/tempfixs/nessie_tempfix.gnut",
-			"RunOn": "SERVER && MP",
-			"ServerCallback":{
-				"After": "Nessie_BaseGame_TempFix"
-			}
-		},
-		{
-			"Path": "/tempfixs/_music.gnut",
-			"RunOn": "SERVER && MP",
-            "ServerCallback": {
-                "After": "MusicPlay_Init"
-            }
-		},
-		{
-			"Path": "/tempfixs/_dialogue.gnut",
-			"RunOn": "SERVER && MP",
-            "ServerCallback": {
-                "After": "DialoguePlay_Init"
-            }
-		}
-    ]
+	"Version": "1.0"
 }
