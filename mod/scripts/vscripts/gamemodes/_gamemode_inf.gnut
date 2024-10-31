@@ -4,7 +4,6 @@ global function GamemodeInfection_Init
 global function TestEvac
 global function NoInfect
 global function setTime
-global function InfectedEvac
 const int EVAC_SHIP_HEALTH = 50000
 const int EVAC_SHIP_SHIELDS = 5000
 
