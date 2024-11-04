@@ -428,7 +428,7 @@ void function HighlightHardmode( entity player )
 		if ( playerVelNormal < 45 )
 		{
 			Highlight_SetEnemyHighlight( player, "sp_objective_entity" )
-			pilot.Highlight_SetParam( 2, 0, HIGHLIGHT_COLOR_ENEMY )
+			player.Highlight_SetParam( 2, 0, HIGHLIGHT_COLOR_ENEMY )
 			ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
 			lastHighlightTime = Time()
 		}
@@ -439,7 +439,7 @@ void function HighlightHardmode( entity player )
 			if ( Time() - lastHighlightTime > cooldownDuration + highlightDuration )
 			{
 				Highlight_SetEnemyHighlight( player, "sp_objective_entity" )
-				pilot.Highlight_SetParam( 2, 0, HIGHLIGHT_COLOR_ENEMY )
+				player.Highlight_SetParam( 2, 0, HIGHLIGHT_COLOR_ENEMY )
 				ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
 				lastHighlightTime = Time()
 			}
@@ -456,7 +456,7 @@ void function HighlightHardmode( entity player )
 			if ( Time() - lastHighlightTime > cooldownDuration + highlightDuration + 5.0 )
 			{
 				Highlight_SetEnemyHighlight( player, "sp_objective_entity" )
-				pilot.Highlight_SetParam( 2, 0, HIGHLIGHT_COLOR_ENEMY )
+				player.Highlight_SetParam( 2, 0, HIGHLIGHT_COLOR_ENEMY )
 				ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
 				lastHighlightTime = Time()
 			}
