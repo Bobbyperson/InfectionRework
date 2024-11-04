@@ -851,14 +851,14 @@ void function RespawnInfected( entity player )
 
 	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
 
-	int specialRoll = RandomInt(1, 8)
+	int specialRoll = RandomInt(8)
 	bool special = false
 	if (specialRoll == 1){
 		special = true
 	}
 
-	if special {
-		int specialType = RandomInt(1, 5)
+	if (special) {
+		int specialType = RandomInt(5)
 		switch (specialType) {
 
 			// boomer
@@ -903,6 +903,7 @@ void function RespawnInfected( entity player )
 
 			// default
 			default:
+				printt("Programming error.")
 			break
 		}
 	} else {
@@ -923,9 +924,9 @@ void function NSSendAnnouncementMessageToPlayer_Delayed( entity player, string t
 void function HandleHighlight( entity player, vector color )
 {
 	Highlight_SetFriendlyHighlight( player, "sp_friendly_hero" )
-	Highlight_SetParam( player, 1, 0, color )
+	player.Highlight_SetParam( 1, 0, color )
 	Highlight_SetEnemyHighlight( player, "sp_objective_entity" )
-	Highlight_SetParam( player, 2, 0, color )
+	player.Highlight_SetParam( 2, 0, color )
 
 	while ( IsAlive(player) && IsValid(player) ) {
 		WaitFrame()
