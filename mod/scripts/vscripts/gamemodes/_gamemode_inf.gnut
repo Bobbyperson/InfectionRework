@@ -605,22 +605,9 @@ void function BecomeInfected( entity player )
 	foreach ( entity weapon in player.GetOffhandWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
-	if (RandomInt(20) == 1){
-		player.GiveWeapon( "mp_weapon_rocket_launcher" )
-	} else {
-		player.GiveWeapon( "mp_weapon_mgl" )
-	}
-	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
-	// int specialRoll = RandomInt(99) // this is 0-99 right
-	int ordnanceRoll = RandomInt(100)
+	player.GiveWeapon( "mp_weapon_mgl" )
 	player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
-	if ( ordnanceRoll <= 9 )
-		thread BecomeBoomer( player ) // funny
-	else if (ordnanceRoll <= 19){
-		player.GiveOffhandWeapon("mp_ability_shifter", OFFHAND_ORDNANCE) // Palomar.PilotPhaseRework
-	} else {
-		player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
-	}
+	player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
 
 	DeployViewModelAndEnableWeapons( player )
 	thread PlayInfectedSounds( player )
@@ -861,57 +848,90 @@ void function RespawnInfected( entity player )
 
 	// TEMP: give archer so player so player has a weapon which lets them use offhands
 	// need to replace this with a custom empty weapon at some point
-	//player.GiveWeapon( "mp_weapon_rocket_launcher" )
-	int rocketRoll = RandomInt(20)
-	if (rocketRoll == 1){
-		player.GiveWeapon( "mp_weapon_rocket_launcher" )
-	} else {
-		player.GiveWeapon( "mp_weapon_mgl" )
-	}
+
 	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
 
-	// int specialRoll = RandomInt(99) // this is 0-99 right
-	int ordnanceRoll = RandomInt(100)
-	player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
-	if ( ordnanceRoll <= 9 ) {
-		thread BecomeBoomer( player ) // funny
+	int specialRoll = RandomInt(1, 8)
+	bool special = false
+	if (specialRoll == 1){
+		special = true
 	}
-	else if (ordnanceRoll <= 19){
-		player.GiveOffhandWeapon("mp_ability_shifter", OFFHAND_ORDNANCE) // Palomar.PilotPhaseRework
-	}	
-	else if (ordnanceRoll <= 29 && playerCount > 7){ // should be 10% chance
-		thread BecomeHunter( player )
-	}  
-	else {
+
+	if special {
+		int specialType = RandomInt(1, 5)
+		switch (specialType) {
+
+			// boomer
+			case 1:
+				thread BecomeBoomer( player )
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Boomer Variant!", <1,0,0>, 1, 0 )
+				thread HandleHighlight( player, <1,0,0> )
+			break
+
+			// shifter
+			case 2:
+				player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL)
+				player.GiveOffhandWeapon("mp_ability_shifter", OFFHAND_ORDNANCE)
+				player.GiveWeapon( "mp_weapon_mgl" )
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Shifter Variant!", <0,1,0>, 1, 0 )
+				thread HandleHighlight( player, <0,1,0> )
+			break
+
+			// hunter
+			case 3:
+				thread BecomeHunter( player )
+				player.GiveWeapon( "mp_weapon_mgl" )
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Seeker Variant!", <1,0,1>, 1, 0 )
+				thread HandleHighlight( player, <1,0,1> )
+			break
+
+			// jumper
+			case 4:
+				player.GiveWeapon( "mp_weapon_rocket_launcher" )
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Jumper Variant!", <1,1,0>, 1, 0 )
+				thread HandleHighlight( player, <1,1,0> )
+			break
+
+			// spitter
+			case 5:
+				player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_SPECIAL)
+				player.GiveOffhandWeapon("mp_weapon_thermite_grenade", OFFHAND_ORDNANCE)
+				player.GiveWeapon( "mp_weapon_mgl" )
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Spitter Variant!", <0,0,1>, 1, 0 )
+				thread HandleHighlight( player, <0,0,1> )
+			break
+
+			// default
+			default:
+			break
+		}
+	} else {
+		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
 		player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
+		player.GiveWeapon( "mp_weapon_mgl" )
 	}
 
 	thread PlayInfectedSounds( player )
-	thread DisplayMutation( player, rocketRoll, ordnanceRoll )
 }
 
-void function DisplayMutation( entity player, int rocketRoll, int ordnanceRoll ) { // needs to be threaded cause it needs to be delayed i hate northstar
+// this exists because sometimes the message is sent when a non-NS announcement is sent, which causes it to not appear ever
+void function NSSendAnnouncementMessageToPlayer_Delayed( entity player, string title, string description, vector color, int priority, int style ){
 	wait 1.0
-	int playerCount = GetPlayerArray().len()
-	if ( !IsValid(player) )
-		return
-	if ( rocketRoll == 1 && ordnanceRoll > 9 ) {
-		NSSendAnnouncementMessageToPlayer( player, "VIRUS MUTATION", "Jumper Variant!", <1,1,0>, 1, 0 )
-		wait 3.0
-		if ( !IsValid(player) )
-			return
+	NSSendAnnouncementMessageToPlayer( player, title, description, color, priority, style )
+}
+
+void function HandleHighlight( entity player, vector color )
+{
+	Highlight_SetFriendlyHighlight( player, "sp_friendly_hero" )
+	Highlight_SetParam( player, 1, 0, color )
+	Highlight_SetEnemyHighlight( player, "sp_objective_entity" )
+	Highlight_SetParam( player, 2, 0, color )
+
+	while ( IsAlive(player) && IsValid(player) ) {
+		WaitFrame()
 	}
-	if (ordnanceRoll <= 9 ){
-		NSSendAnnouncementMessageToPlayer( player, "VIRUS MUTATION", "Boomer Variant!", <1,0,0>, 1, 0 )
-	}
-	else if (ordnanceRoll <= 19 ){
-		NSSendAnnouncementMessageToPlayer( player, "VIRUS MUTATION", "Phase Variant!", <0,1,0>, 1, 0 )
-		// Change enemy highlight color to orange in RGB
-		Highlight_SetEnemyHighlightWithParam0( player, "enemy_player", < 0, 255, 0 > )
-	}
-	else if (ordnanceRoll <= 29 && playerCount > 7 ){
-		NSSendAnnouncementMessageToPlayer( player, "VIRUS MUTATION", "Seeker Variant!", <1,0,1>, 1, 0 )
-	}
+	Highlight_ClearEnemyHighlight( player )
+	Highlight_ClearFriendlyHighlight( player )
 }
 
 void function DisplayIncreasedHealth( entity player )
@@ -945,7 +965,7 @@ void function BecomeBoomer( entity player )
 		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 		//wait 3.0 // wait 3 seconds to hopefully give enough time for the first survivor display to go away
 		foreach ( entity survivor in survivors) {
-			NSSendAnnouncementMessageToPlayer( survivor, "MUTATION DETECTED", "A phase boomer has spawned!", <1,0,0>, 1, 0 )
+			NSSendAnnouncementMessageToPlayer_Delayed( survivor, "MUTATION DETECTED", "A phase boomer has spawned!", <1,0,0>, 1, 0 )
 		}
 	}
 	else
