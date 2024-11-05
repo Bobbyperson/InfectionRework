@@ -945,6 +945,10 @@ void function HandleHighlight( entity player, vector color )
 	while ( IsAlive(player) && IsValid(player) ) {
 		WaitFrame()
 	}
+
+	if ( !IsValid(player) )
+		return
+
 	Highlight_ClearEnemyHighlight( player )
 	Highlight_ClearFriendlyHighlight( player )
 }
