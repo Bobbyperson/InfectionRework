@@ -237,7 +237,7 @@ bool function bMoved( entity player ){
 
 void function InfectionInitPlayer( entity player )
 {
-	if ( GetGameState() >= eGameState.Playing )
+	if ( GetGameState() >= eGameState.Playing || !file.hasHadFirstInfection )
 		InfectPlayer( player, player )
 	file.killstreak[player] <- 0
 	file.deathstreak[player] <- 0
@@ -515,11 +515,16 @@ void function SelectFirstInfectedDelayed()
 		return
 	}
 	array<entity> players = GetPlayerArray()
-	int selected = RandomInt( players.len() )
-	entity infected = players[ selected ]
+
+	if (!players.len()) {
+		SetWinner( INFECTION_TEAM_SURVIVOR )
+		return
+	}
+
+	entity infected = players.getrandom()
 
 	if (file.hardmode[infected] == true) {
-		infected = players[ RandomInt( players.len() ) ]
+		infected = players.getrandom()
 	}
 
 	InfectPlayer( infected, infected )
@@ -568,19 +573,19 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 				{
 					// get a random boost from the array
 					case 5:
-						burncard = file.lowburnreward[ RandomInt( file.lowburnreward.len() ) ]
+						burncard = file.lowburnreward.getrandom()
 						//Chat_ServerBroadcast("\x1b[97m>> \x1b[96m"+attacker+" \x1b[97mis on a \x1b[32mKILLING SPREE "+kills+" \x1b[97m>>")
 						//NSSendPopUpMessageToPlayer( attacker, "5 killstreak!" )
 						break
 
 					case 10:
-						burncard = file.medburnreward[ RandomInt( file.medburnreward.len() ) ]
+						burncard = file.medburnreward.getrandom()
 						//Chat_ServerBroadcast("\x1b[97m>> \x1b[96m"+attacker+" \x1b[97mis \x1b[31mUNSTOPPABLE "+kills+" \x1b[97m>>")
 						//NSSendPopUpMessageToPlayer( attacker, "10 killstreak!" )
 						break
 
 					default: // after 10 they are all high rewards
-						burncard = file.highburnreward[ RandomInt( file.highburnreward.len() ) ]
+						burncard = file.highburnreward.getrandom()
 						//NSSendPopUpMessageToPlayer( attacker, "max killstreak!" )
 						break
 				}
@@ -899,7 +904,7 @@ void function BecomeBoomer( entity player )
 	foreach ( entity weapon in player.GetOffhandWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
-	if ( RandomInt(100) <= 9 ) { // give phase
+	if ( RandomInt(10) == 0 ) { // give phase
 		player.GiveOffhandWeapon("mp_ability_shifter_super", OFFHAND_SPECIAL ) // toggle phase shift, side effect is that you slowly grow blind while in the phase dimension
 		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 		//wait 3.0 // wait 3 seconds to hopefully give enough time for the first survivor display to go away
@@ -1151,7 +1156,7 @@ void function OnWinnerDetermined()
 {
 	SetRespawnsEnabled( false )
 	SetKillcamsEnabled( false ) // apparently does not affect final killcam
-	if (RandomInt(10) == 1) {
+	if (RandomInt(10) == 0) {
 		Chat_ServerBroadcast("gg", true)
 	}
 	thread OnWinnerDetermined_Threaded()
