@@ -281,12 +281,6 @@ void function InfectionOnPlayerDisconnectedDelayed( entity player ) // 7 august 
 			InfectPlayer( infected, infected )
 			RespawnInfected( infected )
 			DeployViewModelAndEnableWeapons( infected )
-
-			// if ( !file.hasResetTimer && !file.evacCame ) // reset timer if it hasn't been reset yet
-			// {
-			// 	file.hasResetTimer = true
-			// 	setTime( 360.0 ) // should be 5 minutes
-			// }
 		}
 	}
 }
@@ -532,19 +526,6 @@ void function SelectFirstInfectedDelayed()
 	RespawnInfected( infected )
 
 	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-
-	// they bitched (lmao)
-
-	// // gives a 2nd player a hidden chance to be an impostor sussy baka
-	// if ( RandomInt(10) == 0  && GetPlayerArray().len() > 11)
-	// {
-	// 	printt("doing crazy infection imposter")
-	// 	Chat_ServerBroadcast("Silly has been activated. THIS IS A TEMPORARY MESSAGE", true)
-	// 	// make sure that the 2nd player isnt also the first infected
-	// 	players.remove( selected )
-	// 	infected = players[ RandomInt( players.len() ) ]
-	// 	thread HiddenInfected( infected )
-	// }
 	
 	if (GetPlayerArray().len() < 8) {
 		Chat_ServerBroadcast("Due to a low playercount all survivors are sonared to keep the pace up.", true)
@@ -554,67 +535,6 @@ void function SelectFirstInfectedDelayed()
 		}
 	}
 }
-
-// callbacks and misc for 2nd hidden infected
-// void function HiddenInfected( entity player )
-// {
-// 	// callback for player input
-// 	AddButtonPressedPlayerInputCallback( player, IN_ATTACK, BecomeInfected )
-
-// 	// Inform the player
-// 	NSSendAnnouncementMessageToPlayer( player, "YOU ARE THE HIDDEN INFECTED", "You can turn into an infected on command!", <0,1,0>, 1, 1 )
-// 	NSSendInfoMessageToPlayer(player, "Press %%attack%% to turn into an infected!")
-// 	HolsterViewModelAndDisableWeapons( player )
-
-// 	// enemy team aka infected see this guy as a blue outline through walls
-// 	Highlight_SetEnemyHighlight( player, "fw_friendly" )
-
-// 	foreach( entity infected in GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ) )
-// 	{
-// 		// inform the infected team
-// 		NSCreateStatusMessageOnPlayer( infected, player.GetPlayerName(), "is the hidden infected!", "banana" )
-// 	}
-
-// }
-
-// this function is for a 2nd player to be an impostor
-// void function BecomeInfected( entity player )
-// {
-// 	RemoveButtonPressedPlayerInputCallback( player, IN_ATTACK, BecomeInfected )
-// 	Highlight_ClearEnemyHighlight( player )
-// 	InfectPlayer( player, player ) // health gets set here
-
-// 	foreach( entity infected in GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ) )
-// 	{
-// 		try {
-// 			NSDeleteStatusMessageOnPlayer( infected, "banana" )
-// 		}
-// 		catch ( ex ){
-// 			printt( ex )
-// 		}
-// 	}
-	
-// 	// set camo to pond scum
-// 	player.SetSkin( 1 )
-// 	player.SetCamo( 110 )
-
-// 	// if human, remove helmet bodygroup, human models have some weird bloody white thing underneath their helmet that works well for this, imo
-// 	if ( !player.IsMechanical() )
-// 		player.SetBodygroup( player.FindBodyGroup( "head" ), 1 )
-
-// 	foreach ( entity weapon in player.GetMainWeapons() )
-// 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
-
-// 	foreach ( entity weapon in player.GetOffhandWeapons() )
-// 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
-
-// 	player.GiveWeapon( "mp_weapon_mgl" )
-// 	player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
-// 	player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
-
-// 	DeployViewModelAndEnableWeapons( player )
-// 	thread PlayInfectedSounds( player )
-// }
 
 void function InfectionOnPlayerKilled( entity victim, entity attacker, var damageInfo )
 {
@@ -1067,19 +987,8 @@ void function BecomeHunter( entity player )
 {
 	player.EndSignal( "OnDeath" )
 	player.EndSignal( "OnDestroy" )
-	// Remove all weapons
-	// foreach ( entity weapon in player.GetMainWeapons() )
-	// 	player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
-	// foreach ( entity weapon in player.GetOffhandWeapons() )
-	// 	player.TakeWeaponNow( weapon.GetWeaponClassName() )
-
-	// player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
-
-	// player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE, [ "allow_as_primary" ])
-	// player.SetActiveWeaponByName( "melee_pilot_emptyhanded" )
-
-	// every 10 second, emit a sonar pulse
+	// every 10 seconds, emit a sonar pulse
 	while (true)
 	{
 		wait 10.0
@@ -1087,9 +996,6 @@ void function BecomeHunter( entity player )
 		PulseLocation( player, player.GetTeam(), player.GetOrigin(), false, false )
 		EmitSoundAtPositionExceptToPlayer( TEAM_UNASSIGNED, player.GetOrigin(), player, "Titan_Tone_SonarLock_Impact_Pulse_3P" )
 		EmitSoundAtPositionOnlyToPlayer( TEAM_UNASSIGNED, player.GetOrigin(), player, "Titan_Tone_SonarLock_Impact_Pulse_1P" )
-
-		// sonar the player too
-		//StatusEffect_AddTimed( player, eStatusEffect.sonar_detected, 1.0, 5.0, 0.0 )
 	}
 }
 
