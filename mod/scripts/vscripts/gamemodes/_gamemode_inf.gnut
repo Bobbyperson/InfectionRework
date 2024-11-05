@@ -40,6 +40,29 @@ const array<string> EVAC_IDLE_ANIMS_3P = [
 	"pt_e3_rescue_side_idle_H"
 ]
 
+const array<string> SURVIVOR_HINTS = [
+	"Movement! Movement! Movement! Staying in one place is an easy way to get swarmed.",
+	"Stick together! Your fellow survivors are key to your survival.",
+	"Keep your distance! Infected can punch from deceptively far away.",
+	"Beware the variants! Some infected have special abilities.",
+	"Explosive weapons can be a great tool to quickly shutdown a horde.",
+	"Stick to the shadows! Sometimes it's better to avoid a fight when you can.",
+	"Infected health decreases as their numbers increase.",
+	"Look up! Sometimes infected find creative paths."
+]
+
+const array<string> INFECTED_HINTS = [
+	"Hunt them... tear them limb from limb. Your claws ache for their flesh; your MGL is just a tool.", // melee, don't use mgl
+	"Keep them guessing, keep them trembling. Make them waste their last bullets on shadows and whispers.", // mix up your movement
+	"Together, we are a nightmare made flesh... As a horde, we will drown them in a sea of blood and broken bones. Alone, you are nothing but prey.", // attack together
+	"Strike from above. Use your grapple to rise high, then descend upon them like death itself. They will never know what hit them.", // use grapple flings
+	"Drag them close... Let your grapple sink deep into their flesh and reel them in. Feel their terror as they are pulled into your jaws.", // grapple can stick to players
+	"Hold back, save your abilities. Let it unleash upon their screams, not in the chase but in the kill. Patience, then slaughter.", // do not waste abilities on traversal
+	"Watch the radar... The boldest survivors reveal themselves. Their confidence will be their undoing.", // watch the radar
+	"Look around. The best path to the survivors is usually not a direct path." // do not charge directly into survivors
+]
+
+
 struct {
 	bool hasHadFirstInfection = false
 	bool hasHadLastInfection = false
@@ -199,6 +222,21 @@ void function GamemodeInfection_Init()
 
 	RegisterWeaponDamageSource( "funnyboomer", "Boomer Explosion" )
 	AddCallback_OnClientDisconnected( InfectionOnPlayerDisconnected )
+	thread ShowHintsToSurvivors()
+}
+
+void function ShowHintsToSurvivors() {
+	while (true) {
+		wait 60
+		survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
+		if ( survivors.len() > 0 ){
+			foreach ( entity player in survivors ) {
+				if ( IsValid( player ) ){ 
+					NSSendInfoMessageToPlayer( player, SURVIVOR_HINTS.getrandom() )
+				}
+			}
+		}
+	}
 }
 
 void function Playing(){
@@ -923,6 +961,9 @@ void function RespawnInfected( entity player )
 		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
 		player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
 		player.GiveWeapon( "mp_weapon_mgl" )
+		if (RandomInt(4) == 0) {
+			NSSendInfoMessageToPlayer( player, INFECTED_HINTS.getrandom() ) // don't want to do this for special infected because they might have special info text
+		}
 	}
 
 	thread PlayInfectedSounds( player )
