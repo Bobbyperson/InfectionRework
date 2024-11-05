@@ -783,7 +783,7 @@ void function InfectPlayer( entity player, entity attacker ) {
 		PlayMusicToAll( eMusicPieceID.GAMEMODE_1 )
 		
 		thread CountdownToEvac()
-		thread Contingency()
+		thread InfectionTimedFunctions()
 	}
 }
 
@@ -1119,13 +1119,14 @@ void function CountdownToEvac()
 	}
 }
 
-void function Contingency() // ensure shitters are still infected if evac dies
+void function InfectionTimedFunctions()
 {
+	// ensure shitters are still infected if evac dies
 	while (true)
 	{
-		if (file.evacDead)
+		if (file.evacDead) 
 		{
-			if ( ( GameTime_TimeLeftSeconds() <= ( ( 5.0 ) ) ) )
+			if ( GameTime_TimeLeftSeconds() <= 5.0 )
 			{
 				array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 
