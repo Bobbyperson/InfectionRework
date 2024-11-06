@@ -639,6 +639,9 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 				// 	newweapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() )
 			}
 		}
+	} else {
+		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
+		SetRoundWinningKillReplayAttacker(survivors[0])
 	}
 
 	// remove boosts from dead players
@@ -690,7 +693,7 @@ void function InfectPlayer( entity player, entity attacker ) {
 			array<entity> infected = GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED )
 			SetRoundWinningKillReplayAttacker(infected[0])
 		}
-		// AddTeamScore( INFECTION_TEAM_INFECTED, 100 ) // for kill replay to work lmao
+		AddTeamScore( INFECTION_TEAM_INFECTED, 100 ) // for kill replay to work lmao
 		SetWinner( INFECTION_TEAM_INFECTED )
 	}
 	else if ( survivors.len() == 1 && !file.hasHadLastInfection && playerCount > 2 )
@@ -1141,7 +1144,7 @@ int function TimeoutCheckSurvivors()
 		SetRespawnsEnabled( false )
 		SetKillcamsEnabled( false )
 		SetRoundWinningKillReplayAttacker(survivors[ 0 ])
-		// AddTeamScore( INFECTION_TEAM_SURVIVOR, 100 ) // for kill replay to work lmao
+		AddTeamScore( INFECTION_TEAM_SURVIVOR, 100 ) // for kill replay to work lmao
 		return INFECTION_TEAM_SURVIVOR
 	}
 	return INFECTION_TEAM_INFECTED
