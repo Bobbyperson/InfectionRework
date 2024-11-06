@@ -1,12 +1,10 @@
 # InfectionRework
-
-putting all this just in case it goes public lol
-
+You can play this gamemode right now without installing it by joining the awesome infection server on northstar. Online 24/7
 ## About
 
 This is an overhaul of the Infection gamemode for Northstar. To put it lightly, the default infection gamemode is an unplayable mess. Infected can never win, there's no room for counter play, and it is overall very boring. This is mostly because survivors with grapple can get to unreachable positions, as the infected are equipped with only infinite stim and mgls. Additionally, survivors are encouraged to equip grapple and go to unreachable positions, because its not possible to not get killed by an infected player, as they have permanant stim and increased air acceleration.
 
-A majority of the heavy lifting for this mod has been done by x3Karma.
+A majority of the heavy lifting for this mod has been done by @x3Karma.
 
 ## Changes
 
@@ -36,7 +34,7 @@ Survivors hide/camp too much, which isn't fun for infected
 ### Solution
 
 - For survivors to win, they must get in the evac ship at the end of the round (this isn't perfect as the evac ship can only hold 8, but is usually not an issue as this many survivors are not alive at this time)
-- Infected can now spawn as variants, which include the seeker, shifter, boomer, and the ultra rare phase boomer
+- Infected can now spawn as variants, which include the seeker, shifter, jumper, spitter, boomer, and the ultra rare phase boomer
 
 ### Problem
 
@@ -52,7 +50,7 @@ When the first infected leaves, no one else can get infected.
 
 ### Solution
 
-- When all infected leave the game, randomly choose another infected
+When all infected leave the game, randomly choose another infected
 
 ### Miscellanous changes
 
