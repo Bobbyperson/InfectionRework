@@ -48,7 +48,9 @@ const array<string> SURVIVOR_HINTS = [
 	"Explosive weapons can be a great tool to quickly shutdown a horde.",
 	"Stick to the shadows! Sometimes it's better to avoid a fight when you can.",
 	"Infected health decreases as their numbers increase.",
-	"Look up! Sometimes infected find creative paths."
+	"Look up! Sometimes infected find creative paths.",
+	"Stay alert! Sometimes infected can get in your face before you see or hear them.",
+	"Listen! Their roars are their biggest giveaways."
 ]
 
 const array<string> INFECTED_HINTS = [
@@ -59,7 +61,7 @@ const array<string> INFECTED_HINTS = [
 	"Drag them close... Let your grapple sink deep into their flesh and reel them in. Feel their terror as they are pulled into your jaws.", // grapple can stick to players
 	"Hold back, save your abilities. Let it unleash upon their screams, not in the chase but in the kill. Patience, then slaughter.", // do not waste abilities on traversal
 	"Watch the radar... The boldest survivors reveal themselves. Their confidence will be their undoing.", // watch the radar
-	"Look around. The best path to the survivors is usually not a direct path." // do not charge directly into survivors
+	"Be cunning... The shortest path is for the mindless." // juke those mfs" // do not charge directly into survivors
 ]
 
 
