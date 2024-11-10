@@ -230,7 +230,7 @@ void function GamemodeInfection_Init()
 void function ShowHintsToSurvivors() {
 	while (true) {
 		wait 60
-		survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
+		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 		if ( survivors.len() > 0 ){
 			foreach ( entity player in survivors ) {
 				if ( IsValid( player ) ){ 
