@@ -50,7 +50,7 @@ const array<string> SURVIVOR_HINTS = [
 	"Infected health decreases as their numbers increase.",
 	"Look up! Sometimes infected find creative paths.",
 	"Stay alert! Sometimes infected can get in your face before you see or hear them.",
-	"Listen! Their roars are their biggest giveaways."
+	"Listen! Their growls are their biggest giveaways."
 ]
 
 const array<string> INFECTED_HINTS = [
