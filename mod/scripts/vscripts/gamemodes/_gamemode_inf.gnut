@@ -228,14 +228,12 @@ void function GamemodeInfection_Init()
 }
 
 void function ShowHintsToSurvivors() {
-	while (true) {
-		wait 60
-		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-		if ( survivors.len() > 0 ){
-			foreach ( entity player in survivors ) {
-				if ( IsValid( player ) ){ 
-					NSSendInfoMessageToPlayer( player, SURVIVOR_HINTS.getrandom() )
-				}
+	wait 60
+	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
+	if ( survivors.len() > 0 ){
+		foreach ( entity player in survivors ) {
+			if ( IsValid( player ) ){ 
+				NSSendInfoMessageToPlayer( player, SURVIVOR_HINTS.getrandom() )
 			}
 		}
 	}
@@ -891,7 +889,7 @@ void function RespawnInfected( entity player )
 		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
 		player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
 		player.GiveWeapon( "mp_weapon_mgl" )
-		if (RandomInt(4) == 0) {
+		if (RandomInt(10) == 0) {
 			NSSendInfoMessageToPlayer( player, INFECTED_HINTS.getrandom() ) // don't want to do this for special infected because they might have special info text
 		}
 	}
