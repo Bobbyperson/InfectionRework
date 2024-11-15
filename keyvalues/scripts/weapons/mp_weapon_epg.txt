@@ -116,7 +116,7 @@ WeaponData
 		"damage_near_distance"							"2000"
 		"damage_far_distance" 							"2500"
 
-		"explosion_damage"								"99"
+		"explosion_damage"								"90"
 		"explosion_damage_heavy_armor"					"700"
 
 		"red_crosshair_range" 							"2000"
