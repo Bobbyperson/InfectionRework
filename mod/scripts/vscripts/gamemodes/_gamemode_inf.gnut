@@ -1635,6 +1635,7 @@ void function EvacEpilogueCompleted( entity dropship )
 	foreach ( entity player in survivors)
 		if ( !PlayerInDropship( player, dropship ) )
 			InfectPlayer( player, player )
+			RespawnInfected( player )
 	wait 3.0
 	foreach ( entity player in dropship.s.evacSlots )
 		if ( IsValid( player ) )
