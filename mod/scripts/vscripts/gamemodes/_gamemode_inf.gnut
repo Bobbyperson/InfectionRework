@@ -1632,10 +1632,12 @@ void function EvacEpilogueCompleted( entity dropship )
 
 	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 	int numEvacing = 0
-	foreach ( entity player in survivors)
-		if ( !PlayerInDropship( player, dropship ) )
+	foreach ( entity player in survivors) {
+		if ( !PlayerInDropship( player, dropship ) ) {
 			InfectPlayer( player, player )
 			RespawnInfected( player )
+		}
+	}|
 	wait 3.0
 	foreach ( entity player in dropship.s.evacSlots )
 		if ( IsValid( player ) )
