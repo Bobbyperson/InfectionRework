@@ -127,6 +127,7 @@ void function GamemodeInfection_Init()
 	SetLoadoutGracePeriodEnabled( true ) // prevent modifying loadouts with grace period
 	SetWeaponDropsEnabled( false ) // executions bypass this, now a feature. DO NOT FIX
 	SetShouldUseRoundWinningKillReplay( true )
+	SetGamemodeAllowsTeamSwitch( false )
 	Riff_ForceTitanAvailability( eTitanAvailability.Never )
 	Riff_ForceBoostAvailability( eBoostAvailability.Disabled )
 	ClassicMP_ForceDisableEpilogue( true )
