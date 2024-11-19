@@ -140,7 +140,6 @@ void function GamemodeInfection_Init()
 	AddCallback_GameStateEnter( eGameState.Playing, SelectFirstInfected )
 	AddCallback_GameStateEnter( eGameState.Playing, Playing)
 	AddCallback_OnReceivedSayTextMessage( HardmodeChat )
-
 	SetTimeoutWinnerDecisionFunc( TimeoutCheckSurvivors ) 
 
 	AddCallback_GameStateEnter( eGameState.WinnerDetermined, OnWinnerDetermined )
@@ -597,6 +596,7 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 
 		if ( attacker.GetTeam() == INFECTION_TEAM_SURVIVOR )
 		{
+			EmitSoundAtPosition( TEAM_UNASSIGNED, victim.GetOrigin(), "prowler_vocal_death" )
 			// killstreaks
 			file.killstreak[attacker] += 1
 			file.deathstreak[victim] += 1
@@ -658,23 +658,7 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 				if ( weapons.len() == 0 )
 					return
 				entity weapon = weapons[0]
-				// victim.TakeWeaponNow( weapon.GetWeaponClassName() )
-				// vector origin = victim.GetOrigin() + Vector( 0, 0, 100 )
-				// vector angles = Vector( 0, 0, 0 )
-				// entity newweapon = CreateWeaponEntityByNameWithPhysics( weapon.GetWeaponClassName(), origin, angles )
 				attacker.GiveWeapon( weapon.GetWeaponClassName() )
-				// newweapon.SetMods( weapon.GetMods() )
-				// newweapon.SetWeaponSkin( weapon.GetSkin() )
-				// newweapon.SetWeaponCamo( weapon.GetCamo() )
-				// if ( weapon.GetProScreenOwner() == victim )
-				// {
-				// 	newweapon.SetProScreenOwner( victim )
-				// 	if ( newweapon.HasMod( "pro_screen" ) )
-				// 		UpdateProScreen( victim, newweapon )
-				// }
-				// newweapon.SetWeaponPrimaryAmmoCount( weapon.GetWeaponPrimaryAmmoCount() )
-				// if ( newweapon.GetWeaponPrimaryClipCountMax() > 0 )
-				// 	newweapon.SetWeaponPrimaryClipCount( weapon.GetWeaponPrimaryClipCount() )
 			}
 		}
 	} else {
@@ -1045,6 +1029,7 @@ void function BecomeHunter( entity player )
 		PulseLocation( player, player.GetTeam(), player.GetOrigin(), false, false )
 		EmitSoundAtPositionExceptToPlayer( TEAM_UNASSIGNED, player.GetOrigin(), player, "Titan_Tone_SonarLock_Impact_Pulse_3P" )
 		EmitSoundAtPositionOnlyToPlayer( TEAM_UNASSIGNED, player.GetOrigin(), player, "Titan_Tone_SonarLock_Impact_Pulse_1P" )
+		EmitSoundOnEntity( player, "prowler_vocal_howl")
 	}
 }
 
@@ -1116,11 +1101,9 @@ void function PlayInfectedSounds( entity player )
 		int meleeState = player.PlayerMelee_GetState()
 		if ( nextRandomSound < Time() || meleeState != 0 )
 		{
+			array<string> infectedSounds = [ "prowler_vocal_attack", "prowler_vocal_attackmiss", "prowler_vocal_attackfast", "prowler_vocal_growl_small", "prowler_vocal_growl_large", "prowler_vocal_pissed", "prowler_vocal_bark" ]
 			string selectedSound
-			if ( CoinFlip() )
-				selectedSound = "prowler_vocal_attack"
-			else
-				selectedSound = "prowler_vocal_attackmiss"
+			selectedSound = infectedSounds.getrandom()
 
 			bool canSeeSurvivor
 			foreach ( entity survivor in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) )
