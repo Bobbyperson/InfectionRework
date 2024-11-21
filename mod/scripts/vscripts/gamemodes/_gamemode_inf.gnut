@@ -54,14 +54,15 @@ const array<string> SURVIVOR_HINTS = [
 ]
 
 const array<string> INFECTED_HINTS = [
-	"Hunt them... tear them limb from limb. Your claws ache for their flesh; your MGL is just a tool.", // melee, don't use mgl
-	"Keep them guessing, keep them trembling. Make them waste their last bullets on shadows and whispers.", // mix up your movement
-	"Together, we are a nightmare made flesh... As a horde, we will drown them in a sea of blood and broken bones. Alone, you are nothing but prey.", // attack together
-	"Strike from above. Use your grapple to rise high, then descend upon them like death itself. They will never know what hit them.", // use grapple flings
-	"Drag them close... Let your grapple sink deep into their flesh and reel them in. Feel their terror as they are pulled into your jaws.", // grapple can stick to players
-	"Hold back, save your abilities. Let it unleash upon their screams, not in the chase but in the kill. Patience, then slaughter.", // do not waste abilities on traversal
-	"Watch the radar... The boldest survivors reveal themselves. Their confidence will be their undoing.", // watch the radar
-	"Be cunning... The shortest path is for the mindless." // juke those mfs" // do not charge directly into survivors
+	"Your MGL is just a tool. You will have the best chances with melee.", // melee, don't use mgl
+	"Mix up your movement! Going in a straight line is easy to track!", // mix up your movement
+	"Attack together! You're weak alone.", // attack together
+	"Utilize your grapple! Use flings and creative movement to make yourself harder to track.", // use grapple flings
+	"Reel them in! Your grapple can stick to survivors.", // grapple can stick to players
+	"Don't waste abilities! Save them for when you're chasing survivors.", // do not waste abilities on traversal
+	"Watch your radar! Survivors can reveal themselves just by shooting.", // watch the radar
+	"Find creative paths! Be unpredictable.", // juke those mfs
+	"If you execute a survivor, you get their gun." // execute a survivor
 ]
 
 
@@ -227,12 +228,14 @@ void function GamemodeInfection_Init()
 }
 
 void function ShowHintsToSurvivors() {
-	wait 60
-	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-	if ( survivors.len() > 0 ){
-		foreach ( entity player in survivors ) {
-			if ( IsValid( player ) ){ 
-				NSSendInfoMessageToPlayer( player, SURVIVOR_HINTS.getrandom() )
+	while ( true ) {
+		wait 90
+		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
+		if ( survivors.len() > 0 ) {
+			foreach ( entity player in survivors ) {
+				if ( IsValid( player ) ) { 
+					NSSendInfoMessageToPlayer( player, SURVIVOR_HINTS.getrandom() )
+				}
 			}
 		}
 	}
