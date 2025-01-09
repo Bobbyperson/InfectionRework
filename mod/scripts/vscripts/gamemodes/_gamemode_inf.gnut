@@ -54,15 +54,15 @@ const array<string> SURVIVOR_HINTS = [
 ]
 
 const array<string> INFECTED_HINTS = [
-	"Your MGL is just a tool. You will have the best chances with melee.", // melee, don't use mgl
-	"Mix up your movement! Going in a straight line is easy to track!", // mix up your movement
-	"Attack together! You're weak alone.", // attack together
-	"Utilize your grapple! Use flings and creative movement to make yourself harder to track.", // use grapple flings
-	"Reel them in! Your grapple can stick to survivors.", // grapple can stick to players
-	"Don't waste abilities! Save them for when you're chasing survivors.", // do not waste abilities on traversal
-	"Watch your radar! Survivors can reveal themselves just by shooting.", // watch the radar
-	"Find creative paths! Be unpredictable.", // juke those mfs
-	"If you execute a survivor, you get their gun." // execute a survivor
+	"Your MGL is just a tool. You will have the best chances with melee.",
+	"Mix up your movement! Going in a straight line is easy to track!",
+	"Attack together! You're weak alone.",
+	"Utilize your grapple! Use flings and creative movement to make yourself harder to track.",
+	"Reel them in! Your grapple can stick to survivors.",
+	"Don't waste abilities! Save them for when you're chasing survivors.",
+	"Watch your radar! Survivors can reveal themselves just by shooting.",
+	"Find creative paths! Be unpredictable.",
+	"If you execute a survivor, you get their gun."
 ]
 
 
@@ -106,7 +106,7 @@ struct {
 									"burnmeter_ticks", 
 									"burnmeter_radar_jammer", 
 									"burnmeter_at_turret_weapon",
-									"burnmeter_smart_pistol",
+									// "burnmeter_smart_pistol",
 									"burnmeter_phase_rewind",
 									"burnmeter_arc_trap"] // i could probably just append these to each other but why append it on each intiation when i could just do this
 } file
@@ -125,8 +125,8 @@ void function GamemodeInfection_Init()
 {
 	PrecacheParticleSystem( FX_EVAC_MARKER )
 	
-	SetLoadoutGracePeriodEnabled( true ) // prevent modifying loadouts with grace period
-	SetWeaponDropsEnabled( false ) // executions bypass this, now a feature. DO NOT FIX
+	SetLoadoutGracePeriodEnabled( true ) // this is disabled later
+	SetWeaponDropsEnabled( false )
 	SetShouldUseRoundWinningKillReplay( true )
 	SetGamemodeAllowsTeamSwitch( false )
 	Riff_ForceTitanAvailability( eTitanAvailability.Never )
@@ -242,40 +242,6 @@ void function ShowHintsToSurvivors() {
 	}
 }
 
-void function Playing(){
-	AddCallback_OnClientConnected( AddPlayerCallbacks )
-	AddCallback_OnClientDisconnected( DeletePlayerRecords )
-	AddCallback_OnPlayerRespawned( Moved )
-
-	foreach (entity player in GetPlayerArray()){
-		AddPlayerCallbacks( player )
-		file.moved[ player ] <- false
-	}
-}
-
-void function DeletePlayerRecords( entity player ){
-	if (player in file.moved){
-		delete file.moved[ player ]
-	}
-}
-
-void function AddPlayerCallbacks( entity player ){
-	file.moved[player] <- false
-	AddPlayerPressedForwardCallback( player, bMoved )
-	AddPlayerPressedBackCallback( player, bMoved )
-	AddPlayerPressedLeftCallback( player, bMoved )
-	AddPlayerPressedRightCallback( player, bMoved )
-}
-
-void function Moved( entity player ){
-	file.moved[ player ] <- true
-}
-
-bool function bMoved( entity player ){
-	Moved( player )
-	return true
-}
-
 void function InfectionInitPlayer( entity player )
 {
 	if ( GetGameState() >= eGameState.Playing || file.hasHadFirstInfection )
@@ -293,7 +259,6 @@ void function InfectionOnPlayerDisconnected( entity player )
 // gotta start documenting code even more since this file is getting bigger and bigger each time
 void function InfectionOnPlayerDisconnectedDelayed( entity player ) // 7 august 2023
 {
-	// how many infected are in the game currently
 	if ( !file.hasHadFirstInfection ) {
 		return
 	}
@@ -311,7 +276,7 @@ void function InfectionOnPlayerDisconnectedDelayed( entity player ) // 7 august 
 			// give a 5 seconds heads up to the selected player and everyone else
 			foreach ( entity player in GetPlayerArray() )
 				if ( player != infected )
-					NSSendAnnouncementMessageToPlayer( player, "NEW HOST FOUND", "A random survivor will be infected in 5 seconds!", <0,1,0>, 1, 0 ) // rgb, should be green
+					NSSendAnnouncementMessageToPlayer( player, "NEW HOST FOUND", "A random survivor will be infected in 5 seconds!", <0,1,0>, 1, 0 )
 				else
 					NSSendAnnouncementMessageToPlayer( player, "YOU HAVE BECOME INFECTED", "You will become infected in 5 seconds!", <0,1,0>, 1, 1 )
 
@@ -411,6 +376,13 @@ ClServer_MessageStruct function HardmodeChat(ClServer_MessageStruct message)
 				file.hardmode[player] = true
 			} else {
 				NSSendInfoMessageToPlayer(player, "NO!!!!!!!")
+			}
+		} else if (msg == "bark") {
+			entity player = message.player
+			if ( IsValid( player ) || IsAlive( player ) )
+				return message
+			if ( player.GetTeam() == INFECTION_TEAM_INFECTED ) {
+				EmitSoundOnEntity( player, "prowler_vocal_bark" )
 			}
 		}
 	}
@@ -584,7 +556,7 @@ void function SelectFirstInfectedDelayed()
 
 void function InfectionOnPlayerKilled( entity victim, entity attacker, var damageInfo )
 {
-	if ( victim.GetTeam() == INFECTION_TEAM_SURVIVOR ) // this needs to happen first because of death by OOB
+	if ( victim.GetTeam() == INFECTION_TEAM_SURVIVOR ) // this needs to happen first because of death by OOB or other reasons
 		InfectPlayer( victim, attacker )
 
 	if ( !victim.IsPlayer() || !attacker.IsPlayer() || GetGameState() != eGameState.Playing || !IsValid( attacker ) || !IsValid( victim ) )
@@ -616,23 +588,18 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 					// get a random boost from the array
 					case 5:
 						burncard = file.lowburnreward.getrandom()
-						//Chat_ServerBroadcast("\x1b[97m>> \x1b[96m"+attacker+" \x1b[97mis on a \x1b[32mKILLING SPREE "+kills+" \x1b[97m>>")
-						//NSSendPopUpMessageToPlayer( attacker, "5 killstreak!" )
 						break
 
 					case 10:
 						burncard = file.medburnreward.getrandom()
-						//Chat_ServerBroadcast("\x1b[97m>> \x1b[96m"+attacker+" \x1b[97mis \x1b[31mUNSTOPPABLE "+kills+" \x1b[97m>>")
-						//NSSendPopUpMessageToPlayer( attacker, "10 killstreak!" )
 						break
 
 					default: // after 10 they are all high rewards
 						burncard = file.highburnreward.getrandom()
-						//NSSendPopUpMessageToPlayer( attacker, "max killstreak!" )
 						break
 				}
 
-				if ( file.killstreak[attacker] == 30 )
+				if ( file.killstreak[attacker] == 50 )
 				{
 					if ( !attacker.IsTitan() && SpawnPoints_GetTitan().len() > 0 )
 					{
@@ -774,7 +741,7 @@ void function RespawnInfected( entity player )
 	int survivorCount = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len()
 	float health = ((1-(infectedCount.tofloat()/playerCount.tofloat())) * 200)
 	int intHealth = health.tointeger()
-	if (infectedCount == 1) { // impossible to infect without
+	if (infectedCount == 1) { // custom logic for the first infected
 		if (file.deathstreak[player] > 4) {
 			player.SetMaxHealth( 200 + (file.deathstreak[player] * 10) )
 			if (file.deathstreak[player] % 5 == 0) {
@@ -803,12 +770,11 @@ void function RespawnInfected( entity player )
 	foreach ( entity weapon in player.GetOffhandWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
-	// TEMP: give archer so player so player has a weapon which lets them use offhands
-	// need to replace this with a custom empty weapon at some point
+	// in the far future when MAD releases we set MGL to a secondary and have the primary be a custom melee weapon
 
 	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
 
-	int specialRoll = RandomInt(6)
+	int specialRoll = RandomInt(5)
 	bool special = false
 	if (specialRoll == 0){
 		special = true
@@ -817,7 +783,7 @@ void function RespawnInfected( entity player )
 	if (special) {
 		int specialType = RandomInt(5)
 		// disallow hunter with less than 8 players
-		if (playerCount < 8) {
+		if (playerCount < 8 || survivorCount == 1) {
 			while (specialType == 2) {
 				specialType = RandomInt(5)
 			}
@@ -1189,22 +1155,6 @@ void function OnWinnerDetermined()
 	SetKillcamsEnabled( false ) // apparently does not affect final killcam
 	if (RandomInt(10) == 0) {
 		Chat_ServerBroadcast("gg", true)
-	}
-	thread OnWinnerDetermined_Threaded()
-
-}
-
-void function OnWinnerDetermined_Threaded()
-{
-	wait 5.0
-	if (GetPlayerArray().len() > 3) {
-		foreach (entity player in GetPlayerArray()) {
-			if ( IsValid(player) ) { // this crashed due to someone leaving once. now isvalid will be here to stay forever. lol.
-				if (file.moved[player] == false) {
-					NSDisconnectPlayer( player, "You've been kicked for being AFK for an entire round." )
-				}
-			}
-		}
 	}
 }
 
