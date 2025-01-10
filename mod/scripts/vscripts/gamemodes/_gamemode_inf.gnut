@@ -139,7 +139,6 @@ void function GamemodeInfection_Init()
 	AddCallback_OnPlayerKilled( InfectionOnPlayerKilled )
 	AddCallback_OnPlayerRespawned( RespawnInfected )
 	AddCallback_GameStateEnter( eGameState.Playing, SelectFirstInfected )
-	AddCallback_GameStateEnter( eGameState.Playing, Playing)
 	AddCallback_OnReceivedSayTextMessage( HardmodeChat )
 	SetTimeoutWinnerDecisionFunc( TimeoutCheckSurvivors ) 
 
