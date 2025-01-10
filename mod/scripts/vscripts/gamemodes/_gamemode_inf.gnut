@@ -1106,7 +1106,7 @@ void function SetLastSurvivor( entity player )
 		Remote_CallFunction_NonReplay( otherPlayer, "ServerCallback_AnnounceLastSurvivor", player.GetEncodedEHandle() )
 
 	if (GameTime_TimeLeftSeconds() > 45 || playerCount > 2)
-		HandleHighlight( player, <1,0,0>, true )
+		thread HandleHighlight( player, <1,0,0>, true )
 		StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) // sonar is better here so the player themselves see the SONAR DETECTED warning.
 	if ( (SpawnPoints_GetTitan().len() > 0) && (GameTime_TimeLeftSeconds() > 45) && !file.evacCame && (playerCount > 7)) {
 		thread CreateTitanForPlayerAndHotdrop( player, GetTitanReplacementPoint( player, false ) )
