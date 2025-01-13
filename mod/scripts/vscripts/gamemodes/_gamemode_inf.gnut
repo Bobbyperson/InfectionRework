@@ -4,8 +4,7 @@ global function GamemodeInfection_Init
 global function TestEvac
 global function NoInfect
 global function setTime
-const int EVAC_SHIP_HEALTH = 50000
-const int EVAC_SHIP_SHIELDS = 5000
+const int EVAC_SHIP_SHIELDS = 2500
 
 const array<string> EVAC_EMBARK_ANIMS_3P = [
 	"pt_e3_rescue_side_embark_A",
@@ -1105,16 +1104,19 @@ void function SetLastSurvivor( entity player )
 	foreach ( entity otherPlayer in GetPlayerArray() )
 		Remote_CallFunction_NonReplay( otherPlayer, "ServerCallback_AnnounceLastSurvivor", player.GetEncodedEHandle() )
 
-	if (GameTime_TimeLeftSeconds() > 45 || playerCount > 2)
-		thread HandleHighlight( player, <1,0,0>, true )
-		StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) // sonar is better here so the player themselves see the SONAR DETECTED warning.
-	if ( (SpawnPoints_GetTitan().len() > 0) && (GameTime_TimeLeftSeconds() > 45) && !file.evacCame && (playerCount > 7)) {
-		thread CreateTitanForPlayerAndHotdrop( player, GetTitanReplacementPoint( player, false ) )
-	}
-	if ( GameTime_TimeLeftSeconds() > 45 && playerCount > 7 && !file.evacCame )
-	{
+	if ((GameTime_TimeLeftSeconds() > 45) && !file.evacCame && (playerCount > 7)) {
+		if ( SpawnPoints_GetTitan().len() > 0) {
+			thread CreateTitanForPlayerAndHotdrop( player, GetTitanReplacementPoint( player, false ) )
+		} else {
+			player.SetHealth( player.GetMaxHealth() + 25 )
+		}
 		SetServerVar( "gameEndTime", Time() + 45.0 )
 		PlayMusicToAll( eMusicPieceID.LEVEL_LAST_MINUTE )
+	}
+
+	if ( !file.evacCame ) {
+		thread HandleHighlight( player, <1,0,0>, true )
+		StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) // sonar is better here so the player themselves see the SONAR DETECTED warning.
 	}
 
 	file.hasHadLastInfection = true
@@ -1257,8 +1259,10 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	dropship.SetModel( evacShip.shipModel )
 	dropship.SetValueForModelKey( evacShip.shipModel )
 	// rework end
-	dropship.SetMaxHealth( EVAC_SHIP_HEALTH )
-	dropship.SetHealth( EVAC_SHIP_HEALTH )
+	int playerCount = GetPlayerArray().len()
+	int evac_ship_health = playerCount * 3125
+	dropship.SetMaxHealth( evac_ship_health )
+	dropship.SetHealth( evac_ship_health )
 	dropship.SetShieldHealth( EVAC_SHIP_SHIELDS )
 	SetTargetName( dropship, "#NPC_EVAC_DROPSHIP" )
 	DispatchSpawn( dropship )
