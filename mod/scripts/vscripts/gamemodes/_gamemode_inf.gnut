@@ -153,6 +153,7 @@ void function GamemodeInfection_Init()
 	switch(mapname)
 	{
 		case "mp_angel_city":
+			file.evacNodes = []
 			file.evacNodes.append( CreateScriptRef( < 2527.889893, -2865.360107, 753.002991 >, < 0, -80.54, 0 > ) )
 			file.evacNodes.append( CreateScriptRef( < 1253.530029, -554.075012, 811.125 >, < 0, 180, 0 > ) )
 			file.evacNodes.append( CreateScriptRef( < 2446.989990, 809.364014, 576.0 >, < 0, 90.253, 0 > ) )
@@ -161,13 +162,13 @@ void function GamemodeInfection_Init()
 		break
 
 		case "mp_colony02":
-			file.evacNodes.append( CreateScriptRef( < -475.129913, 1480.167847, 527.363953 >, < 8.841560, 219.338501, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < 1009.315186, 3999.888916, 589.914917 >, < 23.945116, -146.680725, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < 2282.868896, -1363.706543, 846.188660 >, < 23.945116, -146.680725, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < 1911.771606, -752.053101, 664.741821 >, < 9.955260, 138.721191, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < 1985.563232, -1205.455078, 677.444763 >, < 13.809734, -239.877441, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < -59.625496, -1858.108887, 811.592407 >, < 20.556290, -252.775146, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < -1035.991211, -671.114380, 824.180908 >, < 16.220453, -24.511070, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < -475.129913, 1480.167847, 527.363953 >, < 0, 219.338501, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < 1009.315186, 3999.888916, 589.914917 >, < 0, -146.680725, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < 2282.868896, -1363.706543, 846.188660 >, < 0, -146.680725, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < 1911.771606, -752.053101, 664.741821 >, < 0, 138.721191, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < 1985.563232, -1205.455078, 677.444763 >, < 0, -239.877441, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < -59.625496, -1858.108887, 811.592407 >, < 0, -252.775146, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < -1035.991211, -671.114380, 824.180908 >, < 0, -24.511070, 0 > ) )
 			file.spaceNode = CreateScriptRef( < -1700, -5500, -7600 >, < -3.620642, 270.307129, 0 > )
 		break
 
@@ -1163,11 +1164,11 @@ void function OnWinnerDetermined()
 
 // ============================================================================================================================================
 // 
-//
-//
-// EVAC CODE !!!
-//
-//
+// ███████ ██    ██  █████   ██████ 
+// ██      ██    ██ ██   ██ ██      
+// █████   ██    ██ ███████ ██      
+// ██       ██  ██  ██   ██ ██      
+// ███████   ████   ██   ██  ██████
 //
 // ============================================================================================================================================
 
@@ -1189,8 +1190,6 @@ void function EvacSpectatorFunc( entity player )
 
 void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, float waitTime, bool functionref( entity, entity ) canBoardCallback, bool functionref( entity ) shouldLeaveEarlyCallback, void functionref( entity ) completionCallback, entity customEvacNode = null )
 {
-
-	
 	if (GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len() == 1)
 		if (GetPlayerArray().len() != 1)
 			return
@@ -1689,4 +1688,92 @@ void function WarpInEffectEvacShip( entity dropship )
 	EmitSoundAtPosition( TEAM_UNASSIGNED, origin, sfx )
 
 	wait totalTime - sfxWait
+}
+
+//======================================================================================================
+//
+// ██████   █████  ███    ██ ███████ ██      ███████ 
+// ██   ██ ██   ██ ████   ██ ██      ██      ██      
+// ██████  ███████ ██ ██  ██ █████   ██      ███████ 
+// ██      ██   ██ ██  ██ ██ ██      ██           ██ 
+// ██      ██   ██ ██   ████ ███████ ███████ ███████
+//
+//======================================================================================================
+
+void function InfectionAddPanelSpawns( array<vector> positionsAndOrigins )
+{
+	for ( int i = 0; i < positionsAndOrigins.len(); i += 2 )
+	{
+		Point spawnPoint
+		spawnPoint.origin = positionsAndOrigins[ i ]
+		spawnPoint.angles = positionsAndOrigins[ i + 1 ]
+		
+		file.panelSpawns.append( spawnPoint )
+	}
+}
+
+void function InfectionAddProp( asset model, array<vector> positionsAndOrigins)
+{
+	for ( int i = 0; i < positionsAndOrigins.len(); i += 2 )
+	{
+		entity prop = CreateEntity( "prop_control_panel" )
+		prop.SetValueForModelKey( model )
+		prop.SetOrigin( positionsAndOrigins[ i ] )
+		prop.SetAngles( positionsAndOrigins[ i + 1 ] )
+		prop.kv.solid = SOLID_VPHYSICS
+		DispatchSpawn( prop )
+	
+		prop.SetModel( model )
+	}
+}
+
+entity function CreatePanel( vector origin, vector angles )
+{
+	entity panel = CreateEntity( "prop_control_panel" )
+	panel.SetValueForModelKey( $"models/communication/terminal_usable_imc_01.mdl" )
+	panel.SetOrigin( origin )
+	panel.SetAngles( angles )
+	panel.kv.solid = SOLID_VPHYSICS
+	DispatchSpawn( panel )
+	
+	panel.SetModel( $"models/communication/terminal_usable_imc_01.mdl" )
+	panel.s.scriptedPanel <- true
+	
+	// HACK: need to use a custom useFunction here as control panel exposes no way to get the player's position before hacking it, or a way to run code before the hacking animation actually starts
+	panel.s.startOrigin <- < 0, 0, 0 >
+	panel.useFunction = InfectionControlPanelCanUse
+	
+	SetControlPanelUseFunc( panel, InfectionOnPanelHacked )
+	
+	Highlight_SetNeutralHighlight( panel, "sp_enemy_pilot" )
+	
+	return panel
+}
+
+function InfectionControlPanelCanUse( playerUser, controlPanel )
+{
+	// just run ControlPanel_CanUseFunction, but save hacking player's origin to controlPanel.s.startOrigin beforehand
+	expect entity( playerUser )
+	expect entity( controlPanel )
+	controlPanel.s.startOrigin <- playerUser.GetOrigin()
+
+	if (playerUser.GetTeam() == INFECTION_TEAM_SURVIVOR && GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len() >= GetPlayerArray().len()/2)
+		return ControlPanel_CanUseFunction( playerUser, controlPanel )
+
+	return false
+}
+
+// control panel code isn't very statically typed, pain
+function InfectionOnPanelHacked( panel, player )
+{
+	expect entity( panel )
+	expect entity( player )
+		
+	print( panel + " was hacked by " + player )
+	SetTeam( panel, player.GetTeam() )
+	
+	player.SetPlayerGameStat( PGS_ASSAULT_SCORE, player.GetPlayerGameStat( PGS_ASSAULT_SCORE ) + 1 )
+	
+	foreach ( entity otherPlayer in GetPlayerArray() )
+		Remote_CallFunction_NonReplay( otherPlayer, "ServerCallback_InfectionPanelHacked", panel.GetEncodedEHandle(), panel.s.panelId, player.GetEncodedEHandle() )
 }
