@@ -1008,19 +1008,20 @@ void function BecomeHunter( entity player )
 
 void function CountdownToEvac()
 {
-	array<entity> survivors
+	int numSurvivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len()
 	wait 30.0
-	while ( GetGameState() == eGameState.Playing )
+	while ( GetGameState() == eGameState.Playing && numSurvivors > 1 )
 	{
-		survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-
 		if ( GameTime_TimeLeftSeconds() <= 60.0 )
 		{
+			numSurvivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len()
+
 			float EVAC_WAIT_TIME, EVAC_ARRIVAL_TIME, EVAC_INITIAL_WAIT
 			EVAC_INITIAL_WAIT = 0.0
 			EVAC_ARRIVAL_TIME = 30 // 50%
 			EVAC_WAIT_TIME = 15.0
 
+			PlayMusicToAll( eMusicPieceID.LEVEL_LAST_MINUTE )
 			thread SurvivorEvac( INFECTION_TEAM_SURVIVOR, EVAC_INITIAL_WAIT, EVAC_ARRIVAL_TIME, EVAC_WAIT_TIME, CanPlayerBoardEvac, EvacEpilogueShouldLeaveEarly, EvacEpilogueCompleted )
 			return
 		}
