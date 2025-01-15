@@ -1008,9 +1008,9 @@ void function BecomeHunter( entity player )
 
 void function CountdownToEvac()
 {
-	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
+	array<entity> survivors
 	wait 30.0
-	while ( true )
+	while ( GetGameState() == eGameState.Playing )
 	{
 		survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 
