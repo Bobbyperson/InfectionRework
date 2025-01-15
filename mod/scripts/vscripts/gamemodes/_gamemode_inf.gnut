@@ -1489,6 +1489,7 @@ void function AddPlayerToEvacDropship( entity dropship, entity player )
 
 	// need to cancel if the dropship dies
 	dropship.EndSignal( "OnDeath", "OnDestroy" )
+	player.EndSignal( "OnDeath", "OnDestroy" )
 
 	player.SetInvulnerable()
 	player.UnforceCrouch()
