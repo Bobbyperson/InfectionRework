@@ -84,6 +84,9 @@ struct {
 	entity evacDropship
 	entity evacIcon
 
+	// panel
+	array<Point> panelSpawns
+
 	array<string> lowburnreward = [ "burnmeter_ticks", 
 									"burnmeter_radar_jammer", 
 									"burnmeter_at_turret_weapon",
@@ -137,6 +140,7 @@ void function GamemodeInfection_Init()
 	AddCallback_OnClientConnected( InfectionInitPlayer )
 	AddCallback_OnPlayerKilled( InfectionOnPlayerKilled )
 	AddCallback_OnPlayerRespawned( RespawnInfected )
+	AddCallback_GameStateEnter( eGameState.Prematch, ResetPanels )
 	AddCallback_GameStateEnter( eGameState.Playing, SelectFirstInfected )
 	AddCallback_OnReceivedSayTextMessage( HardmodeChat )
 	SetTimeoutWinnerDecisionFunc( TimeoutCheckSurvivors ) 
@@ -210,17 +214,23 @@ void function GamemodeInfection_Init()
 		case "mp_coliseum":
 			file.evacNodes.append(CreateScriptRef( < -3.50534, -4.30921, 126.576 >, < 0, 173.968, 0 > ) )
 			file.spaceNode = (CreateScriptRef( < 2988.35, 1367.398, 1354.04 >, < 0, 158.053, 0 > ) )
+			InfectionAddPanelSpawns([ <4.77621, 27.3504, 6.49609>, <0, 0, 0> ])
 		break
 
 		case "mp_coliseum_column":
 			file.evacNodes.append(CreateScriptRef( < -3.50534, -4.30921, 126.576 >, < 0, 173.968, 0 > ) )
 			file.spaceNode = (CreateScriptRef( < 2988.35, 1367.398, 1354.04 >, < 0, 158.053, 0 > ) )
 		break
+
+		case "mp_forwardbase_kodai":
+			InfectionAddPanelSpawns([<2871.45, 1228.08, 944.309>, <0, 0, 0>])
+		break
 		
 		default:
 		break
 	}
 
+	AddCallback_EntitiesDidLoad( SpawnPanelsForLevel )
 	RegisterWeaponDamageSource( "funnyboomer", "Boomer Explosion" )
 	AddCallback_OnClientDisconnected( InfectionOnPlayerDisconnected )
 	thread ShowHintsToSurvivors()
@@ -1087,6 +1097,9 @@ void function PlayInfectedSounds( entity player )
 				selectedSound += "_int"
 
 			EmitSoundOnEntity( player, selectedSound )
+			EmitAISoundWithOwner( player, 0, 0, player.GetOrigin(), 1600, 2 ) 
+			// void EmitAISoundWithOwner( entity owner, int soundFlags, int contextFlags, vector pos, float radius, float duration )
+			// zero documentation/example code on soundFlags and contextFlags btw.... no idea what they do
 
 			nextRandomSound = Time() + max( 2.5, RandomFloat( 12.0 ) )
 			while ( player.PlayerMelee_GetState() != 0 ) // need to ensure this is updated
@@ -1714,6 +1727,17 @@ void function InfectionAddPanelSpawns( array<vector> positionsAndOrigins )
 	}
 }
 
+void function SpawnPanelsForLevel()
+{
+	int panelId
+	foreach ( Point panelSpawn in file.panelSpawns )
+	{
+		entity panel = CreatePanel( panelSpawn.origin, panelSpawn.angles )	
+		panel.s.panelId <- panelId++
+		SetTeam( panel, INFECTION_TEAM_INFECTED )
+	}
+}
+
 void function InfectionAddProp( asset model, array<vector> positionsAndOrigins)
 {
 	for ( int i = 0; i < positionsAndOrigins.len(); i += 2 )
@@ -1759,10 +1783,19 @@ function InfectionControlPanelCanUse( playerUser, controlPanel )
 	expect entity( controlPanel )
 	controlPanel.s.startOrigin <- playerUser.GetOrigin()
 
-	if (playerUser.GetTeam() == INFECTION_TEAM_SURVIVOR && GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len() >= GetPlayerArray().len()/2)
-		return ControlPanel_CanUseFunction( playerUser, controlPanel )
+	foreach ( entity weapon in playerUser.GetOffhandWeapons() ) {
+		if ( weapon.GetWeaponClassName() == "mp_ability_burncardweapon" || weapon.GetWeaponClassName() == "mp_ability_turretweapon" || weapon.GetWeaponClassName() == "mp_weapon_frag_drone" ) {
+			return false
+		}
+	}
 
-	return false
+	// can't use panels until half the players are infected
+	// TODO: update this to dynamically change SetUseableByGroup so as to not incorrectly show E to hack
+	if ( GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len() < GetPlayerArray().len()/2 ) {
+		return false
+	}
+		
+	return ControlPanel_CanUseFunction( playerUser, controlPanel )
 }
 
 // control panel code isn't very statically typed, pain
@@ -1774,11 +1807,102 @@ function InfectionOnPanelHacked( panel, player )
 	print( panel + " was hacked by " + player )
 	
 	player.SetPlayerGameStat( PGS_ASSAULT_SCORE, player.GetPlayerGameStat( PGS_ASSAULT_SCORE ) + 1 )
+	if (CoinFlip()) {
+		
+		thread Infection_SpawnDropPodAlly( GetTitanReplacementPoint( player, false ).origin, <0, 0, 0>, INFECTION_TEAM_SURVIVOR, "npc_spectre", SquadHandler, 0, player );
+	}
+	else {
+		BurnMeter_GiveRewardDirect( player, file.highburnreward.getrandom() )
+	}
 
-	BurnMeter_GiveRewardDirect( player, file.highburnreward.getrandom() )
+	SetTeam( panel, TEAM_UNASSIGNED )
+
+	thread InfectionOnPanelHacked_Delayed( panel, player )
 
 
 	// TODO: figure out if we want to do this clientsided or serversided (basically is MAD good enough/going to stay)
 	// foreach ( entity otherPlayer in GetPlayerArray() )
 	// 	Remote_CallFunction_NonReplay( otherPlayer, "ServerCallback_InfectionPanelHacked", panel.GetEncodedEHandle(), panel.s.panelId, player.GetEncodedEHandle() )
+}
+
+function InfectionOnPanelHacked_Delayed( panel, player )
+{
+	wait 5
+	expect entity( panel )
+	expect entity( player )
+		
+	SetTeam( panel, INFECTION_TEAM_SURVIVOR )
+	EmitSoundOnEntity( panel, "Coop_AmmoBox_Close" ) // might change, it's a little quiet
+}
+
+void function ResetPanels()
+{
+	foreach ( entity panel in GetAllControlPanels() )
+	{
+		panel.SetUsableByGroup( "friendlies pilot" )
+		SetTeam( panel, INFECTION_TEAM_SURVIVOR )
+	}
+}
+
+void function SquadFollow( array<entity> guys, entity owner )
+{
+	int team = guys[0].GetTeam()
+	// show the squad enemy radar
+	array<entity> players = GetPlayerArrayOfEnemies( team )
+	foreach ( entity guy in guys )
+	{
+		if ( IsAlive( guy ) )
+		{
+			foreach ( player in players )
+				guy.Minimap_AlwaysShow( 0, player )
+		}
+	}
+	
+	vector point = owner.GetOrigin()
+	
+	// Setup AI, first assault point
+	foreach ( guy in guys )
+	{
+        if ( IsAlive( guy ) ) {
+            guy.EnableNPCFlag( NPC_ALLOW_PATROL | NPC_ALLOW_INVESTIGATE | NPC_ALLOW_HAND_SIGNALS | NPC_ALLOW_FLEE | NPC_STAY_CLOSE_TO_SQUAD | NPC_CROUCH_COMBAT )
+            guy.AssaultPoint( point )
+            guy.AssaultSetGoalRadius( 1600 ) // 1600 is minimum for npc_stalker, works fine for others
+
+		//thread AITdm_CleanupBoredNPCThread( guy )
+        }
+	}
+	
+	// Every 5 - 15 secs change AssaultPoint
+	while ( true )
+	{	
+		if ( !IsValid( owner ) || owner.GetTeam() != team ) {
+			if ( GetPlayerArrayOfTeam( team ).len() == 0 ) {
+				return // round is over, no need to cleanup squad, maybe make them explode or smth if its a problem
+			}
+			owner = GetPlayerArrayOfTeam( team ).getrandom()
+		}
+
+		foreach ( guy in guys )
+		{
+			// Check if alive
+			if ( !IsAlive( guy ) )
+			{
+				guys.removebyvalue( guy )
+				continue
+			}
+			// Stop func if our squad has been killed off
+			if ( guys.len() == 0 )
+				return
+		}
+			
+		point = owner.GetOrigin()
+		
+		foreach ( guy in guys )
+		{
+			if ( IsAlive( guy ) )
+				guy.AssaultPoint( point )
+		}
+
+		wait RandomFloatRange(3.0, 5.0)
+	}
 }
