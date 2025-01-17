@@ -4,6 +4,7 @@ global function GamemodeInfection_Init
 global function TestEvac
 global function NoInfect
 global function setTime
+global function RateSpawnpoints_Infection
 const int EVAC_SHIP_SHIELDS = 2500
 
 const array<string> EVAC_EMBARK_ANIMS_3P = [
@@ -86,6 +87,8 @@ struct {
 
 	// panel
 	array<Point> panelSpawns
+
+	entity queen
 
 	array<string> lowburnreward = [ "burnmeter_ticks", 
 									"burnmeter_radar_jammer", 
@@ -572,6 +575,10 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 
 	file.killstreak[victim] <- 0
 
+	if ( victim == file.queen ) {
+		file.queen = null
+	}
+
 	if ( attacker.IsPlayer() && victim != attacker ) 
 	{
 		attacker.SetPlayerGameStat( PGS_ASSAULT_SCORE, attacker.GetPlayerGameStat( PGS_ASSAULT_SCORE ) + 1 )
@@ -671,6 +678,11 @@ void function InfectPlayer( entity player, entity attacker ) {
 			if(infectedPlayer.IsTitan()){
 				return
 			}
+			if ( infectedPlayer == file.queen )
+				return
+			if ( IsValid( file.queen ) ){
+				intHealth += 25
+			}
 			if (infectedCount == 1) { // impossible to win without
 				infectedPlayer.SetMaxHealth( 200 )
 			}
@@ -749,6 +761,9 @@ void function RespawnInfected( entity player )
 	int survivorCount = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len()
 	float health = ((1-(infectedCount.tofloat()/playerCount.tofloat())) * 200)
 	int intHealth = health.tointeger()
+	if ( IsValid(file.queen) ) {
+		intHealth += 25
+	}
 	if (infectedCount == 1) { // custom logic for the first infected
 		if (file.deathstreak[player] > 4) {
 			player.SetMaxHealth( 200 + (file.deathstreak[player] * 10) )
@@ -786,6 +801,17 @@ void function RespawnInfected( entity player )
 	bool special = false
 	if (specialRoll == 0){
 		special = true
+	}
+
+	bool queenExists = false
+	if ( IsValid( file.queen ) )
+		queenExists = true
+
+	int queenRoll = RandomInt(100)
+	bool queen = false
+	if (queenRoll == 0 && !queenExists && infectedCount > 1) {
+		queen = true
+		special = false
 	}
 
 	if (special) {
@@ -847,6 +873,16 @@ void function RespawnInfected( entity player )
 				printt("Programming error.")
 			break
 		}
+	} else if (queen) {
+		StimPlayer( player, 9999.9 )
+		player.GiveWeapon( "mp_weapon_mgl" )
+		thread NSSendAnnouncementMessageToPlayer_Delayed( player, "YOU ARE THE HIVE QUEEN", "All infected spawn near you!", <1,1,1>, 1, 0 )
+		thread HandleHighlight( player, <1,0,0>, true )
+		file.queen = player
+		player.SetMaxHealth( 250 )
+		foreach ( entity survivorPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) ) {
+			thread NSSendAnnouncementMessageToPlayer_Delayed( survivorPlayer, "HIVE QUEEN DETECTED", "Eliminate it to weaken the infection!", <1,0,0>, 1, 0 )
+		}
 	} else {
 		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
 		player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
@@ -854,6 +890,13 @@ void function RespawnInfected( entity player )
 		if (RandomInt(10) == 0) {
 			NSSendInfoMessageToPlayer( player, INFECTED_HINTS.getrandom() ) // don't want to do this for special infected because they might have special info text
 		}
+	}
+
+
+	// TEMPORARY!!!
+	// TODO: figure out spawn algos
+	if (queenExists) {
+		player.SetOrigin( file.queen.GetOrigin() )
 	}
 
 	thread PlayInfectedSounds( player )
@@ -921,7 +964,7 @@ void function BecomeBoomer( entity player )
 		player.GiveOffhandWeapon("mp_ability_shifter_super", OFFHAND_SPECIAL ) // toggle phase shift, side effect is that you slowly grow blind while in the phase dimension
 		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 		foreach ( entity survivor in survivors) {
-			NSSendAnnouncementMessageToPlayer_Delayed( survivor, "MUTATION DETECTED", "A phase boomer has spawned!", <1,0,0>, 1, 0 )
+			thread NSSendAnnouncementMessageToPlayer_Delayed( survivor, "MUTATION DETECTED", "A phase boomer has spawned!", <1,0,0>, 1, 0 )
 		}
 	}
 	else
@@ -1905,5 +1948,32 @@ void function SquadFollow( array<entity> guys, entity owner )
 		}
 
 		wait RandomFloatRange(3.0, 5.0)
+	}
+}
+
+void function RateSpawnpoints_Infection( int checkClass, array<entity> spawnpoints, int team, entity player )
+{	
+	foreach ( entity spawnpoint in spawnpoints )
+	{
+		float currentRating = 0.0
+		
+		// Gather friendly scoring first to give positive rating first
+		currentRating += spawnpoint.NearbyAllyScore( team, "ai" )
+		currentRating += spawnpoint.NearbyAllyScore( team, "titan" )
+		currentRating += spawnpoint.NearbyAllyScore( team, "pilot" )
+		
+		// Enemies then subtract that rating ( Values already returns negative, so no need to apply subtract again )
+		currentRating += spawnpoint.NearbyEnemyScore( team, "ai" )
+		currentRating += spawnpoint.NearbyEnemyScore( team, "titan" )
+		currentRating += spawnpoint.NearbyEnemyScore( team, "pilot" )
+		
+		if ( spawnpoint == player.p.lastSpawnPoint ) // Reduce the rating of the spawn point used previously
+			currentRating += GetConVarFloat( "spawnpoint_last_spawn_rating" )
+
+		if ( IsValid( file.queen ) ) {
+			rating = rating / Distance2D( spawnpoint.GetOrigin(), file.queen.GetOrigin() )
+		}
+		
+		spawnpoint.CalculateRating( checkClass, team, currentRating, currentRating * 0.25 )
 	}
 }

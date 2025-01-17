@@ -25,8 +25,8 @@ void function CreateGamemodeInfection()
 	
 	#if SERVER
 		GameMode_AddServerInit( GAMEMODE_INFECTION, GamemodeInfection_Init )
-		GameMode_SetPilotSpawnpointsRatingFunc( GAMEMODE_INFECTION, RateSpawnpoints_Generic )
-		GameMode_SetTitanSpawnpointsRatingFunc( GAMEMODE_INFECTION, RateSpawnpoints_Generic )
+		GameMode_SetPilotSpawnpointsRatingFunc( GAMEMODE_INFECTION, RateSpawnpoints_Infection)
+		GameMode_SetTitanSpawnpointsRatingFunc( GAMEMODE_INFECTION, RateSpawnpoints_Infection )
 	#elseif CLIENT
 		GameMode_AddClientInit( GAMEMODE_INFECTION, ClGamemodeInfection_Init )
 	#endif
