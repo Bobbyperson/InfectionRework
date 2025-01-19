@@ -676,10 +676,10 @@ void function InfectPlayer( entity player, entity attacker ) {
 				return
 			}  
 			if(infectedPlayer.IsTitan()){
-				return
+				continue
 			}
 			if ( infectedPlayer == file.queen )
-				return
+				continue
 			if ( IsValid( file.queen ) ){
 				intHealth += 25
 			}
@@ -884,7 +884,9 @@ void function RespawnInfected( entity player )
 			thread NSSendAnnouncementMessageToPlayer_Delayed( survivorPlayer, "HIVE QUEEN DETECTED", "Eliminate it ASAP to weaken the infection!", <1,0,0>, 1, 0 )
 		}
 		foreach ( entity infectedPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ) ) {
-			thread NSSendAnnouncementMessageToPlayer_Delayed( infectedPlayer, "HIVE QUEEN DETECTED", "You feel stronger! Protect the Hive Queen at all costs!", <1,1,1>, 1, 0 )
+			if (infectedPlayer != player) {
+				thread NSSendAnnouncementMessageToPlayer_Delayed( infectedPlayer, "HIVE QUEEN DETECTED", "You feel stronger! Protect the Hive Queen at all costs!", <1,1,1>, 1, 0 )
+			}
 		}
 	} else {
 		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
@@ -893,6 +895,12 @@ void function RespawnInfected( entity player )
 		if (RandomInt(10) == 0) {
 			NSSendInfoMessageToPlayer( player, INFECTED_HINTS.getrandom() ) // don't want to do this for special infected because they might have special info text
 		}
+	}
+
+	// TEMPORARY!!!
+	// TODO: figure out spawn algos
+	if (queenExists) {
+		player.SetOrigin( file.queen.GetOrigin() )
 	}
 
 	thread PlayInfectedSounds( player )
@@ -1972,4 +1980,18 @@ void function RateSpawnpoints_Infection( int checkClass, array<entity> spawnpoin
 		
 		spawnpoint.CalculateRating( checkClass, team, currentRating, currentRating * 0.25 )
 	}
+	// foreach ( entity spawnpoint in spawnpoints )
+    // {
+    //     spawnpoint.NearbyEnemyScore( team, "ai" )
+
+    //     if( !IsValid( file.queen ) )
+    //         break
+        
+    //     float currentRating = 1.0 - ( Distance2D( spawnpoint.GetOrigin(), file.queen.GetOrigin() ) / MAP_EXTENTS )
+
+    //     // if ( spawnpoint == player.p.lastSpawnPoint ) // Reduce the rating of the spawn point used previously
+    //     //     currentRating += GetConVarFloat( "spawnpoint_last_spawn_rating" )
+
+    //     spawnpoint.CalculateRating( checkClass, team, currentRating, currentRating * 0.25 )
+    // }
 }
