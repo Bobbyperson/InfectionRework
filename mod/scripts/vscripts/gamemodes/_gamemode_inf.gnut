@@ -648,8 +648,8 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 			}
 		}
 	} else {
-		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-		SetRoundWinningKillReplayAttacker(survivors[0])
+		array<entity> players = GetPlayerArray()
+		SetRoundWinningKillReplayAttacker(players.getrandom())
 	}
 
 	// remove boosts from dead players
