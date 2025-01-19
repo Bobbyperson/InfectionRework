@@ -807,7 +807,7 @@ void function RespawnInfected( entity player )
 	if ( IsValid( file.queen ) )
 		queenExists = true
 
-	int queenRoll = RandomInt(100)
+	int queenRoll = RandomInt(1)
 	bool queen = false
 	if (queenRoll == 0 && !queenExists && infectedCount > 1) {
 		queen = true
@@ -881,7 +881,10 @@ void function RespawnInfected( entity player )
 		file.queen = player
 		player.SetMaxHealth( 250 )
 		foreach ( entity survivorPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) ) {
-			thread NSSendAnnouncementMessageToPlayer_Delayed( survivorPlayer, "HIVE QUEEN DETECTED", "Eliminate it to weaken the infection!", <1,0,0>, 1, 0 )
+			thread NSSendAnnouncementMessageToPlayer_Delayed( survivorPlayer, "HIVE QUEEN DETECTED", "Eliminate it ASAP to weaken the infection!", <1,0,0>, 1, 0 )
+		}
+		foreach ( entity infectedPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ) ) {
+			thread NSSendAnnouncementMessageToPlayer_Delayed( infectedPlayer, "HIVE QUEEN DETECTED", "You feel stronger! Protect the Hive Queen at all costs!", <1,1,1>, 1, 0 )
 		}
 	} else {
 		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
@@ -890,13 +893,6 @@ void function RespawnInfected( entity player )
 		if (RandomInt(10) == 0) {
 			NSSendInfoMessageToPlayer( player, INFECTED_HINTS.getrandom() ) // don't want to do this for special infected because they might have special info text
 		}
-	}
-
-
-	// TEMPORARY!!!
-	// TODO: figure out spawn algos
-	if (queenExists) {
-		player.SetOrigin( file.queen.GetOrigin() )
 	}
 
 	thread PlayInfectedSounds( player )
@@ -1852,7 +1848,7 @@ function InfectionOnPanelHacked( panel, player )
 	player.SetPlayerGameStat( PGS_ASSAULT_SCORE, player.GetPlayerGameStat( PGS_ASSAULT_SCORE ) + 1 )
 	if (CoinFlip()) {
 		
-		thread Infection_SpawnDropPodAlly( GetTitanReplacementPoint( player, false ).origin, <0, 0, 0>, INFECTION_TEAM_SURVIVOR, "npc_spectre", SquadHandler, 0, player );
+		thread Infection_SpawnDropPodAlly( GetTitanReplacementPoint( player, false ).origin, <0, 0, 0>, INFECTION_TEAM_SURVIVOR, "npc_spectre", SquadFollow, 0, player );
 	}
 	else {
 		BurnMeter_GiveRewardDirect( player, file.highburnreward.getrandom() )
@@ -1870,7 +1866,7 @@ function InfectionOnPanelHacked( panel, player )
 
 function InfectionOnPanelHacked_Delayed( panel, player )
 {
-	wait 5
+	wait 30
 	expect entity( panel )
 	expect entity( player )
 		
@@ -1891,7 +1887,7 @@ void function SquadFollow( array<entity> guys, entity owner )
 {
 	int team = guys[0].GetTeam()
 	// show the squad enemy radar
-	int goalradius = guys[0].GetClassName() == "npc_stalker" ? 1600 : 250
+	int goalradius = guys[0].GetClassName() == "npc_stalker" ? 1600 : 500
 	array<entity> players = GetPlayerArrayOfEnemies( team )
 	foreach ( entity guy in guys )
 	{
@@ -1971,7 +1967,7 @@ void function RateSpawnpoints_Infection( int checkClass, array<entity> spawnpoin
 			currentRating += GetConVarFloat( "spawnpoint_last_spawn_rating" )
 
 		if ( IsValid( file.queen ) ) {
-			rating = rating / Distance2D( spawnpoint.GetOrigin(), file.queen.GetOrigin() )
+			currentRating = 1.0 - ( Distance2D( spawnpoint.GetOrigin(), file.queen.GetOrigin() ) / MAP_EXTENTS )
 		}
 		
 		spawnpoint.CalculateRating( checkClass, team, currentRating, currentRating * 0.25 )
