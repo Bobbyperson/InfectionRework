@@ -900,7 +900,13 @@ void function RespawnInfected( entity player )
 
 	// TEMPORARY!!!
 	// TODO: figure out spawn algos
+	array<entity> spawnPoints = SpawnPoints_GetPilot()
+	entity closestSpawnPoint = spawnPoints[0]
 	if (queenExists) {
+	foreach( entity spawnPoint in spawnPoints ) {
+		if ( Distance2D( spawnPoint.GetOrigin(), file.queen.GetOrigin() ) < Distance2D( spawnPoint.GetOrigin(), closestSpawnPoint.GetOrigin() ) ) {
+			closestSpawnPoint = spawnPoint
+		}
 		player.SetOrigin( file.queen.GetOrigin() )
 	}
 
