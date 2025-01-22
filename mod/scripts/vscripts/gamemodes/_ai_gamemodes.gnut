@@ -85,7 +85,7 @@ void function AiGameModes_SpawnDropPod( vector pos, vector rot, int team, string
 		
 		npc.SetParent( pod, "ATTACH", true )
 		
-		npc.EnableNPCFlag( NPC_ALLOW_PATROL | NPC_ALLOW_INVESTIGATE | NPC_ALLOW_HAND_SIGNALS | NPC_ALLOW_FLEE )
+		npc.EnableNPCFlag( NPC_ALLOW_PATROL | NPC_ALLOW_INVESTIGATE | NPC_ALLOW_HAND_SIGNALS | NPC_ALLOW_FLEE | NPC_STAY_CLOSE_TO_SQUAD | NPC_CROUCH_COMBAT )
 		guys.append( npc )
 	}
 	

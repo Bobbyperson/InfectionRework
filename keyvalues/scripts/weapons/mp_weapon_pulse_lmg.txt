@@ -145,8 +145,8 @@ WeaponData
 
 		"red_crosshair_range" 							"1200"
 
-		"npc_damage_near_value"   						"26"
-		"npc_damage_far_value"							"16"
+		"npc_damage_near_value"   						"30"
+		"npc_damage_far_value"							"30"
 		"npc_damage_near_value_titanarmor"				"0"
 		"npc_damage_far_value_titanarmor"				"0"
 
@@ -213,6 +213,8 @@ WeaponData
 	"proficiency_average_spreadscale" 				"5.0"
 	"proficiency_good_spreadscale"					"4.0"
 	"proficiency_very_good_spreadscale"   			"2.5"
+
+	"npc_accuracy_multiplier_pilot"                 "100"
 
 	"npc_min_engage_range"							"0"
 	"npc_max_engage_range"							"2500"
