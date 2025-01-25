@@ -588,6 +588,7 @@ void function SelectFirstInfectedDelayed()
 
 void function InfectionOnPlayerKilled( entity victim, entity attacker, var damageInfo )
 {
+	ShouldPanelsBeUsable()
 	if ( victim.GetTeam() == INFECTION_TEAM_SURVIVOR ) // this needs to happen first because of death by OOB or other reasons
 		InfectPlayer( victim, attacker )
 
@@ -681,6 +682,8 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 }
 
 void function InfectPlayer( entity player, entity attacker ) {
+	ShouldPanelsBeUsable()
+	
 	SetTeam( player, INFECTION_TEAM_INFECTED )
 	player.SetPlayerGameStat( PGS_ASSAULT_SCORE, 0 ) // reset kills
 	file.playersToNotifyOfInfection.append( player )
@@ -1876,12 +1879,6 @@ function InfectionControlPanelCanUse( playerUser, controlPanel )
 			return false
 		}
 	}
-
-	// can't use panels until half the players are infected
-	// TODO: update this to dynamically change SetUseableByGroup so as to not incorrectly show E to hack
-	if ( GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len() < GetPlayerArray().len()/2 ) {
-		return false
-	}
 		
 	return ControlPanel_CanUseFunction( playerUser, controlPanel )
 }
@@ -1905,7 +1902,6 @@ function InfectionOnPanelHacked( panel, player )
 			} else {
 				thread Infection_SpawnDropPodAlly( closestNode.GetOrigin(), <0, 0, 0>, INFECTION_TEAM_INFECTED, "npc_prowler", SquadFollow, 0, player )
 			}
-			
 		}
 		else {
 			if (player.GetTeam() == INFECTION_TEAM_SURVIVOR) {
@@ -1943,7 +1939,7 @@ void function ResetPanels()
 {
 	foreach ( entity panel in GetAllControlPanels() )
 	{
-		panel.SetUsableByGroup( "friendlies pilot" )
+		panel.SetUsableByGroup( "enemies pilot" )
 		SetTeam( panel, INFECTION_TEAM_SURVIVOR )
 	}
 }
@@ -1958,7 +1954,7 @@ void function ShouldPanelsBeUsable()
 		if ( numInfected >= numSurvivors )
 			panel.SetUsableByGroup( "friendlies pilot" )
 		else
-			panel.SetUsableByGroup( "enemy pilot" )
+			panel.SetUsableByGroup( "enemies pilot" )
 	}
 }
 
