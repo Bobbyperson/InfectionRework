@@ -226,12 +226,33 @@ void function GamemodeInfection_Init()
 		break
 
 		case "mp_forwardbase_kodai":
-			InfectionAddPanelSpawns([<2871.45, 1228.08, 944.309>, <0, 0, 0>])
+			InfectionAddPanelSpawns([
+				< 2472.952392578125, 3212.56591796875, 992.237548828125 >, <0.0, 90.0, 0.0>,
+				< 1407.9998779296876, 2856.232421875, 1096.2265625 >, <0.0, 90.0, 0.0>,
+				< -402.2103576660156, 2641.76708984375, 960.03125 >, <0.0, 0.0, 0.0>,
+				< -319.26348876953127, 3216.9287109375, 1097.03125 >, <0.0, 90.0, 0.0>,
+				< -40.30308532714844, 865.5199584960938, 1096.03125 >, <0.0, 180.0, 0.0>,
+				< 56.031185150146487, 866.6178588867188, 1096.03125 >, <0.0, 0.0, 0.0>,
+				< 1131.0697021484376, 641.03125, 959.978271484375 >, <0.0, 90.0, 0.0>,
+				< -768.03125, 545.4030151367188, 960.03125 >, <0.0, 180.0, 0.0>,
+				< -1319.96875, 878.9300537109375, 1096.03125 >, <0.0, 0.0, 0.0>,
+				< 1181.820068359375, 195.2162322998047, 1096.03125 >, <0.0, 0.0, 0.0>,
+				< 734.2090454101563, -2456.636474609375, 953.5282592773438 >, <0.0, -90.0, 0.0>,
+				< -679.96875, -1984.6761474609376, 952.03125 >, <0.0, 0.0, 0.0>,
+				< -3006.97119140625, 2064.37060546875, 4741.68408203125 >, <0.0, -90.0, 0.0>,
+				< -1049.275634765625, 2753.13232421875, 966.0291748046875 >, <0.0, 180.0, 0.0>,
+				< -1072.95703125, -103.04417419433594, 961.4425048828125 >, <0.0, -90.0, 0.0>,
+				< 2761.6484375, -495.3310852050781, 948.682373046875 >, <0.0, -90.0, 0.0>,
+				< 623.96875, 814.5533447265625, 960.03125 >, <0.0, 180.0, 0.0>,
+				< 1459.1153564453126, 953.568115234375, 960.03125 >, <0.0, 180.0, 0.0>
+			])
 		break
 		
 		default:
 		break
 	}
+
+	PrecacheModel($"models/creatures/prowler/r2_prowler.mdl")
 
 	AddCallback_EntitiesDidLoad( SpawnPanelsForLevel )
 	RegisterWeaponDamageSource( "funnyboomer", "Boomer Explosion" )
@@ -594,42 +615,42 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 			int kills = file.killstreak[attacker]
 			
 
-			// if the killstreak is a multiple of 5 (5, 10, 15, etc), give a random boost
-			if ( file.killstreak[attacker] > 4 && ( file.killstreak[attacker] % 5 == 0 ) && MapSettings_SupportsTitans( GetMapName() ) ) // prevents killstreaks on lf and coliseum
-			{
-				string burncard
-				switch ( file.killstreak[attacker] )
-				{
-					// get a random boost from the array
-					case 5:
-						burncard = file.lowburnreward.getrandom()
-						break
+			// // if the killstreak is a multiple of 5 (5, 10, 15, etc), give a random boost
+			// if ( file.killstreak[attacker] > 4 && ( file.killstreak[attacker] % 5 == 0 ) && MapSettings_SupportsTitans( GetMapName() ) ) // prevents killstreaks on lf and coliseum
+			// {
+			// 	string burncard
+			// 	switch ( file.killstreak[attacker] )
+			// 	{
+			// 		// get a random boost from the array
+			// 		case 5:
+			// 			burncard = file.lowburnreward.getrandom()
+			// 			break
 
-					case 10:
-						burncard = file.medburnreward.getrandom()
-						break
+			// 		case 10:
+			// 			burncard = file.medburnreward.getrandom()
+			// 			break
 
-					default: // after 10 they are all high rewards
-						burncard = file.highburnreward.getrandom()
-						break
-				}
+			// 		default: // after 10 they are all high rewards
+			// 			burncard = file.highburnreward.getrandom()
+			// 			break
+			// 	}
 
-				if ( file.killstreak[attacker] == 50 )
-				{
-					if ( !attacker.IsTitan() && SpawnPoints_GetTitan().len() > 0 )
-					{
-						thread CreateTitanForPlayerAndHotdrop( attacker, GetTitanReplacementPoint( attacker, false ) )
-						foreach ( entity player in GetPlayerArray() )
-							if ( player != attacker )
-								NSSendLargeMessageToPlayer( player, "TITANFALL INCOMING", attacker.GetPlayerName() + " has obtained a titan!", 7, "rui/callsigns/callsign_68_col")
-					}
-					else 
-						BurnMeter_GiveRewardDirect( attacker, burncard )
-				}
-				else
-					BurnMeter_GiveRewardDirect( attacker, burncard )
-				NSSendPopUpMessageToPlayer( attacker, file.killstreak[attacker].tostring() + " killstreak!" )
-			}
+			// 	if ( file.killstreak[attacker] == 50 )
+			// 	{
+			// 		if ( !attacker.IsTitan() && SpawnPoints_GetTitan().len() > 0 )
+			// 		{
+			// 			thread CreateTitanForPlayerAndHotdrop( attacker, GetTitanReplacementPoint( attacker, false ) )
+			// 			foreach ( entity player in GetPlayerArray() )
+			// 				if ( player != attacker )
+			// 					NSSendLargeMessageToPlayer( player, "TITANFALL INCOMING", attacker.GetPlayerName() + " has obtained a titan!", 7, "rui/callsigns/callsign_68_col")
+			// 		}
+			// 		else 
+			// 			BurnMeter_GiveRewardDirect( attacker, burncard )
+			// 	}
+			// 	else
+			// 		BurnMeter_GiveRewardDirect( attacker, burncard )
+			// 	NSSendPopUpMessageToPlayer( attacker, file.killstreak[attacker].tostring() + " killstreak!" )
+			// }
 		}
 		else // if attacker is infected
 		{
@@ -808,7 +829,7 @@ void function RespawnInfected( entity player )
 	if ( IsValid( file.queen ) )
 		queenExists = true
 
-	int queenRoll = RandomInt(1)
+	int queenRoll = RandomInt(50)
 	bool queen = false
 	if (queenRoll == 0 && !queenExists && infectedCount > 1) {
 		queen = true
@@ -1878,16 +1899,24 @@ function InfectionOnPanelHacked( panel, player )
 	array<entity> dropPodSpawns = GetEntArrayByClass_Expensive( "info_spawnpoint_droppod_start" )
 	if (dropPodSpawns.len() != 0) {
 		entity closestNode = GetClosest( dropPodSpawns, player.GetOrigin() )
-	}
-
-	if (CoinFlip() && dropPodSpawns.len() != 0) {
-		// obviously temporary
-		thread Infection_SpawnDropPodAlly( closestNode.origin, <0, 0, 0>, INFECTION_TEAM_SURVIVOR, "npc_spectre", SquadFollow, 0, player );
-		thread Infection_SpawnDropPodAlly( closestNode.origin, <0, 0, 0>, INFECTION_TEAM_SURVIVOR, "npc_soldier", SquadFollow, 0, player );
-		thread Infection_SpawnDropPodAlly( closestNode.origin, <0, 0, 0>, INFECTION_TEAM_SURVIVOR, "npc_stalker", SquadFollow, 0, player );
+		if (RandomInt(10) == 0) {
+			if (player.GetTeam() == INFECTION_TEAM_SURVIVOR) {
+				thread Infection_SpawnDropPodAlly( closestNode.GetOrigin(), <0, 0, 0>, INFECTION_TEAM_SURVIVOR, "npc_spectre", SquadFollow, 0, player )
+			} else {
+				thread Infection_SpawnDropPodAlly( closestNode.GetOrigin(), <0, 0, 0>, INFECTION_TEAM_INFECTED, "npc_prowler", SquadFollow, 0, player )
+			}
+			
+		}
+		else {
+			if (player.GetTeam() == INFECTION_TEAM_SURVIVOR) {
+				BurnMeter_GiveRewardDirect( player, file.highburnreward.getrandom() )
+			}
+		}
 	}
 	else {
-		BurnMeter_GiveRewardDirect( player, file.highburnreward.getrandom() )
+		if (player.GetTeam() == INFECTION_TEAM_SURVIVOR) {
+			BurnMeter_GiveRewardDirect( player, file.highburnreward.getrandom() )
+		}
 	}
 
 	SetTeam( panel, TEAM_UNASSIGNED )
