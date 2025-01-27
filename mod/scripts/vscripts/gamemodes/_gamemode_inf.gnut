@@ -536,6 +536,8 @@ void function SelectFirstInfectedDelayed()
 	Chat_ServerBroadcast("Join us on discord at \x1b[36mdiscord.gg/awesometf", true)
 	WaitFrame()
 	Chat_ServerBroadcast("Please do not go out of bounds.", true)
+	WaitFrame()
+	Chat_ServerBroadcast("Please note, this server is temporarily running the V2 branch of Infection for playtesting. Expect crashes.", true)
 	wait 5.0 + RandomFloat( 5.0 )
 	SetLoadoutGracePeriodEnabled( false )
 	WaitFrame()
@@ -1954,7 +1956,7 @@ void function ShouldPanelsBeUsable()
 		if ( numInfected >= numSurvivors )
 			panel.SetUsableByGroup( "friendlies pilot" )
 		else
-			panel.SetUsableByGroup( "enemies pilot" )
+			panel.SetUsableByGroup( "" )
 	}
 }
 
