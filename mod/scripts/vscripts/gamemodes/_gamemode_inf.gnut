@@ -140,6 +140,7 @@ void function GamemodeInfection_Init()
 	// ClassicMP_SetCustomIntro( ClassicMP_DefaultNoIntro_Setup, ClassicMP_DefaultNoIntro_GetLength() )
 
 	SetShouldPlayerStartBleedoutFunc( InfectionShouldPlayerStartBleedout )
+	AddCallback_OnClientConnecting( CheckShouldRestartMap )
 	AddCallback_OnClientConnected( InfectionInitPlayer )
 	AddCallback_OnPlayerKilled( InfectionOnPlayerKilled )
 	AddCallback_OnPlayerRespawned( RespawnInfected )
@@ -272,6 +273,12 @@ void function ShowHintsToSurvivors() {
 			}
 		}
 	}
+}
+
+void function CheckShouldRestartMap()
+{
+	if ( GetGameState() <= eGameState.Prematch && Time() > 60 * 30 )
+		ServerCommand( "changelevel " + GetMapName() )
 }
 
 void function InfectionInitPlayer( entity player )
