@@ -240,7 +240,7 @@ void function ShowHintsToSurvivors() {
 	}
 }
 
-void function CheckShouldRestartMap()
+void function CheckShouldRestartMap( entity player )
 {
 	if ( GetGameState() <= eGameState.Prematch && Time() > 60 * 30 )
 		ServerCommand( "changelevel " + GetMapName() )
