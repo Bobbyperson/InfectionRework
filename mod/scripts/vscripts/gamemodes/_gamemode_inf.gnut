@@ -1268,7 +1268,7 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	dropship.SetValueForModelKey( evacShip.shipModel )
 	// rework end
 	int playerCount = GetPlayerArray().len()
-	int evac_ship_health = playerCount * 3125
+	int evac_ship_health = (playerCount + 1) * 3125
 	dropship.SetMaxHealth( evac_ship_health )
 	dropship.SetHealth( evac_ship_health )
 	dropship.SetShieldHealth( EVAC_SHIP_SHIELDS )
