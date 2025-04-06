@@ -1223,7 +1223,7 @@ void function SetLastSurvivor( entity player )
 		if ( SpawnPoints_GetTitan().len() > 0) {
 			thread CreateTitanForPlayerAndHotdrop( player, GetTitanReplacementPoint( player, false ) )
 		} else {
-			player.SetHealth( player.GetMaxHealth() + 25 )
+			player.SetMaxHealth( 125 )
 		}
 		SetServerVar( "gameEndTime", Time() + 45.0 )
 		PlayMusicToAll( eMusicPieceID.LEVEL_LAST_MINUTE )
