@@ -489,7 +489,7 @@ WeaponData
 		}
 		at_unlimited_ammo
         {
-            "ammo_no_remove_from_stockpile"					"1"
+            "ammo_no_remove_from_stockpile"					"0"
         }
 	}
 

@@ -315,7 +315,7 @@ WeaponData
 	"ammo_clip_size"   								"35"
 	"ammo_clip_reload_max"							"35"
 	"ammo_min_to_fire"								"10"
-	"ammo_no_remove_from_stockpile"					"1"
+	"ammo_no_remove_from_stockpile"					"0"
 
 
 	MP_BASE

@@ -106,7 +106,7 @@ WeaponData
 		"ammo_stockpile_max"							"50"
 		"ammo_clip_reload_max"							"50"
 		"ammo_no_remove_from_clip"                      "0"
-        "ammo_no_remove_from_stockpile"                 "1"
+        "ammo_no_remove_from_stockpile"                 "0"
 
 		"damage_near_value"   							"200"
 		"damage_far_value"								"200"

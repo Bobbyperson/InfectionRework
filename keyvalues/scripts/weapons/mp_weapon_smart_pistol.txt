@@ -563,7 +563,7 @@ WeaponData
 			"primary_fire_does_not_block_sprint"			"1"
 			"ammo_default_total"							"72"
 			"ammo_stockpile_max"							"72"
-			"ammo_no_remove_from_stockpile"					"1"
+			"ammo_no_remove_from_stockpile"					"0"
 			"smart_ammo_search_distance"  					"1400"
 
 			"damage_near_value"   							"*4.0"

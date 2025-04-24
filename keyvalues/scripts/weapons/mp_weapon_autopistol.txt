@@ -100,7 +100,7 @@ WeaponData
 	{
 		"ammo_default_total"							"200"
 		"ammo_stockpile_max"							"200"
-		"ammo_no_remove_from_stockpile"					"1"
+		"ammo_no_remove_from_stockpile"					"0"
 		"ammo_min_to_fire"								"1"
 
 		"aimassist_adspull_weaponclass"					"precise"

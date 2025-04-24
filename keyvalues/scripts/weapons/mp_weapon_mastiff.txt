@@ -99,7 +99,7 @@ WeaponData
 		"ammo_clip_size"   								"4"
 		"ammo_default_total"							"40"
 		"ammo_stockpile_max"							"40"
-		"ammo_no_remove_from_stockpile"					"1"
+		"ammo_no_remove_from_stockpile"					"0"
 		"ammo_min_to_fire"								"1"
 
 		"aimassist_adspull_weaponclass"					"broad"
