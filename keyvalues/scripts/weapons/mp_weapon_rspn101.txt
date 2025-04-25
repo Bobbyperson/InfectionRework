@@ -7,6 +7,6 @@ WeaponData
 		"npc_damage_near_value"   						"25"
 		"npc_damage_far_value"							"17"
 
-        "npc_accuracy_multiplier_pilot"                 "100"
+		"npc_accuracy_multiplier_pilot"                 "100"
 	}
 }

@@ -2,6 +2,6 @@ WeaponData
 {
 	MP_BASE
 	{
-        "ammo_no_remove_from_stockpile"                 "0"
+		"ammo_no_remove_from_stockpile"                 "0"
 	}
 }

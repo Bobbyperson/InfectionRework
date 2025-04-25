@@ -2,11 +2,11 @@ WeaponData
 {
 	MP_BASE
 	{
-        "ammo_no_remove_from_stockpile"                 "0"
+		"ammo_no_remove_from_stockpile"                 "0"
 
-		"npc_damage_near_value"   						"30"
+		"npc_damage_near_value"							"30"
 		"npc_damage_far_value"							"30"
-	}
 
-	"npc_accuracy_multiplier_pilot"                 "100"
+		"npc_accuracy_multiplier_pilot"					"100"
+	}
 }
