@@ -1963,7 +1963,7 @@ void function ShouldPanelsBeUsable()
 		if ( numInfected >= numSurvivors )
 			panel.SetUsableByGroup( "friendlies pilot" )
 		else
-			panel.SetUsableByGroup( "" )
+			panel.UnsetUsable()
 	}
 }
 
@@ -2073,4 +2073,37 @@ void function RateSpawnpoints_Infection( int checkClass, array<entity> spawnpoin
 
     //     spawnpoint.CalculateRating( checkClass, team, currentRating, currentRating * 0.25 )
     // }
+}
+
+// Yoinked from EladNLG's rougelike mod
+int function AddClipToWeapon( entity player, entity weapon )
+{
+	int ammoPerClip = weapon.GetWeaponPrimaryClipCountMax()
+	int gainedAmmo = 0
+
+	switch ( weapon.GetWeaponInfoFileKeyField( "fire_mode" ) )
+	{
+		case "offhand_hybrid":
+		case "offhand":
+		case "offhand_instant":
+
+			// offhand weapons typically cant store ammo, so refill the current clip
+			if ( ammoPerClip > 0 )
+			{
+				int primaryClipCount = weapon.GetWeaponPrimaryClipCount()
+				weapon.SetWeaponPrimaryClipCount( ammoPerClip )
+				gainedAmmo = weapon.GetWeaponPrimaryClipCount() - primaryClipCount
+			}
+			break
+
+		default:
+			int primaryAmmoCount = weapon.GetWeaponPrimaryAmmoCount()
+			// this weapon has off-clip ammo storage, so add ammo to storage
+			int stockpile = player.GetWeaponAmmoStockpile( weapon )
+			weapon.SetWeaponPrimaryAmmoCount( primaryAmmoCount + ammoPerClip )
+			gainedAmmo = player.GetWeaponAmmoStockpile( weapon ) - stockpile
+			break
+	}
+
+	return gainedAmmo
 }
