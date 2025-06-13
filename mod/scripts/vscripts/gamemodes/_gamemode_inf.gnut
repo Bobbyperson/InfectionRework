@@ -505,7 +505,7 @@ void function SelectFirstInfectedDelayed()
 {
 	srand(GetUnixTimestamp()) // don't use the same rng seed each time lol
 	wait 5.0
-	Chat_ServerBroadcast("Join us on discord at \x1b[36mdiscord.gg/awesometf", true)
+	Chat_ServerBroadcast("Join us on discord at \x1b[36mdiscord.awesome.tf", true)
 	WaitFrame()
 	Chat_ServerBroadcast("Please do not go out of bounds.", true)
 	wait 5.0 + RandomFloat( 5.0 )
