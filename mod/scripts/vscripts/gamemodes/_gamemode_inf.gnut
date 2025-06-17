@@ -1275,6 +1275,8 @@ void function OnWinnerDetermined()
 	if (RandomInt(10) == 0) {
 		Chat_ServerBroadcast("gg", true)
 	}
+	Chat_ServerBroadcast("Join us on discord at \x1b[36mdiscord.awesome.tf", true)
+	Chat_ServerBroadcast("Please let us know if you have any feedback.", true)
 }
 
 // ============================================================================================================================================
