@@ -548,6 +548,7 @@ void function SelectFirstInfectedDelayed()
 	wait 5.0 + RandomFloat( 5.0 )
 	SetLoadoutGracePeriodEnabled( false )
 	WaitFrame()
+	ServerCommand("melee_lunge_scale_by_speed 0")
 	ServerCommand("sv_alltalk 1");
 	ServerCommand("slide_step_velocity_reduction 10");
 	ServerCommand("sv_gravity 750");
