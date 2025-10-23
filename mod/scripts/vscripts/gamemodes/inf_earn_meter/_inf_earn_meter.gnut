@@ -1,0 +1,6 @@
+global function Sv_InfectionEarnMeter_Init
+
+void function Sv_InfectionEarnMeter_Init( entity player )
+{
+    // nothing here yet
+}
