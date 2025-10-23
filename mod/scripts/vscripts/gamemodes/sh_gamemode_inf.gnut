@@ -9,8 +9,6 @@ void function Sh_GamemodeInfection_Init()
 	// create custom gamemode
 	AddCallback_OnCustomGamemodesInit( CreateGamemodeInfection )
 	AddCallback_OnRegisteringCustomNetworkVars( InfectionRegisterNetworkVars )
-
-	Sh_InfectionEarnMeter_Init(GAMEMODE_INFECTION)
 }
 
 void function CreateGamemodeInfection()
