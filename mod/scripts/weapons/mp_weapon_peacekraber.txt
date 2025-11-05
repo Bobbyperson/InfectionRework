@@ -86,7 +86,7 @@ WeaponData
 
 		// Ammo
 	"ammo_stockpile_max"							"20"
-	"ammo_no_remove_from_stockpile"					"0"
+	"ammo_no_remove_from_stockpile"					"1" // keeping this here pending a change
 	"ammo_default_total"							"25"
 	"ammo_clip_size"   								"5"
 	"ammo_size_segmented_reload"					"5"

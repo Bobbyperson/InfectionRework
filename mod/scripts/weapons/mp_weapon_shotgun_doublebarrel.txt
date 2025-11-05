@@ -95,7 +95,7 @@ WeaponData
 	"ammo_stockpile_max"							"40"
 	"ammo_default_total"							"40"
 	"ammo_clip_size"   								"2"
-	"ammo_no_remove_from_stockpile"					"0"
+	"ammo_no_remove_from_stockpile"					"1" // keeping this here pending a change
 	"ammo_min_to_fire"								"1"
 
 	"reload_time" 									"1.85"

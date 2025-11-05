@@ -2,7 +2,7 @@ WeaponData
 {
 	MP_BASE
 	{
-		"ammo_no_remove_from_stockpile"					"0"
+		"ammo_no_remove_from_stockpile"					"1" // keeping this here pending a change
 
 		"npc_damage_near_value"   						"25"
 		"npc_damage_far_value"							"17"
