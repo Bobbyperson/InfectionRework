@@ -850,11 +850,11 @@ void function RespawnInfected( entity player )
 	}
 
 	if (special) {
-		int specialType = RandomInt(5)
+		int specialType = RandomInt(4)
 		// disallow hunter with less than 8 players
 		if (playerCount < 8 || survivorCount == 1) {
 			while (specialType == 2) {
-				specialType = RandomInt(5)
+				specialType = RandomInt(4)
 			}
 		}
 		switch (specialType) {
@@ -885,17 +885,8 @@ void function RespawnInfected( entity player )
 				thread HandleHighlight( player, <1,0,1> )
 			break
 
-			// jumper
-			case 3:
-				player.GiveWeapon( "mp_weapon_rocket_launcher" )
-				player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL)
-				player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
-				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Jumper Variant!", <1,1,0>, 1, 0 )
-				thread HandleHighlight( player, <1,1,0> )
-			break
-
 			// spitter
-			case 4:
+			case 3:
 				player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_SPECIAL)
 				player.GiveOffhandWeapon("mp_weapon_thermite_grenade", OFFHAND_ORDNANCE)
 				player.GiveWeapon( "mp_weapon_mgl" )

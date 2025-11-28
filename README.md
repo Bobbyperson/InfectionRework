@@ -34,7 +34,7 @@ Survivors hide/camp too much, which isn't fun for infected
 ### Solution
 
 - For survivors to win, they must get in the evac ship at the end of the round (this isn't perfect as the evac ship can only hold 8, but is usually not an issue as this many survivors are not alive at this time)
-- Infected can now spawn as variants, which include the seeker, shifter, jumper, spitter, boomer, and the ultra rare phase boomer
+- Infected can now spawn as variants, which include the seeker, shifter, spitter, boomer, and the ultra rare phase boomer
 
 ### Problem
 
