@@ -28,11 +28,10 @@ void function OnProjectileCollision_weapon_frag_drone( entity projectile, vector
 
 			projectile.proj.projectileBounceCount += 1
 
- 			thread DelayedExplode( projectile, 0.75 )
+			thread DelayedExplode( projectile, 0.75 )
 		}
 	#endif
 }
-
 
 var function OnWeaponTossReleaseAnimEvent_weapon_frag_drone( entity weapon, WeaponPrimaryAttackParams attackParams )
 {
@@ -46,15 +45,14 @@ var function OnWeaponTossReleaseAnimEvent_weapon_frag_drone( entity weapon, Weap
 	return weapon.GetWeaponSettingInt( eWeaponVar.ammo_per_shot )
 }
 
-
 void function OnProjectileExplode_weapon_frag_drone( entity projectile )
 {
 	#if SERVER
-			vector origin = projectile.GetOrigin()
-			entity owner = projectile.GetThrower()
+		vector origin = projectile.GetOrigin()
+		entity owner = projectile.GetThrower()
 
-			if ( !IsValid( owner ) )
-				return
+		if ( !IsValid( owner ) )
+			return
 
 		array<string> mods = projectile.ProjectileGetMods()
 
@@ -106,86 +104,85 @@ void function OnProjectileExplode_weapon_frag_drone( entity projectile )
 }
 
 #if SERVER
-void function FragDroneLifetime( entity drone )
-{
-	drone.EndSignal( "OnDestroy" )
-	drone.EndSignal( "OnDeath" )
-
-	EmitSoundOnEntity( drone, "weapon_sentryfragdrone_emit_loop" )
-	wait 15.0
-	drone.Signal( "SuicideSpectreExploding" )
-}
-
-void function DelayedExplode( entity projectile, float delay )
-{
-	projectile.Signal( "OnFragDroneCollision" )
-	projectile.EndSignal( "OnFragDroneCollision" )
-	projectile.EndSignal( "OnDestroy" )
-
-	wait delay
-	while( TraceLineSimple( projectile.GetOrigin(), projectile.GetOrigin() - <0,0,15>, projectile ) == 1.0 )
-		wait 0.25
-
-	projectile.GrenadeExplode( Vector( 0, 0, 0 ) )
-}
-
-void function DroneDeployFailedExplode( entity drone, entity owner )
-{
-	if ( owner.IsPlayer() )
+	void function FragDroneLifetime( entity drone )
 	{
-		drone.SetBossPlayer( owner )
-	}
-	thread FragDroneDeplyAnimation( drone, 0.0, 0.1 )
-	drone.Signal( "SuicideSpectreExploding" )
-}
+		drone.EndSignal( "OnDestroy" )
+		drone.EndSignal( "OnDeath" )
 
-void function WaitForEnemyNotification( entity drone )
-{
-	drone.EndSignal( "OnDeath" )
-
-	entity owner
-	entity currentTarget
-
-	while ( true )
-	{
-		//----------------------------------
-		// Get owner and current enemy
-		//----------------------------------
-		currentTarget = drone.GetEnemy()
-		owner = drone.GetFollowTarget()
-
-		//----------------------------------
-		// Free roam if owner is dead or HasEnemy
-		//----------------------------------
-		if ( !IsAlive( owner ) || currentTarget != null )
-		{
-			drone.DisableBehavior( "Follow" )
-		}
-		else
-		{
-			drone.ClearEnemy()
-			drone.EnableBehavior( "Follow" )
-		}
-
-		wait 0.25
+		EmitSoundOnEntity( drone, "weapon_sentryfragdrone_emit_loop" )
+		wait 15.0
+		drone.Signal( "SuicideSpectreExploding" )
 	}
 
-}
+	void function DelayedExplode( entity projectile, float delay )
+	{
+		projectile.Signal( "OnFragDroneCollision" )
+		projectile.EndSignal( "OnFragDroneCollision" )
+		projectile.EndSignal( "OnDestroy" )
 
-void function FragDrone_OnDamagePlayerOrNPC( entity ent, var damageInfo )
-{
-	if ( !IsValid( ent ) )
-		return
+		wait delay
+		while ( TraceLineSimple( projectile.GetOrigin(), projectile.GetOrigin() - < 0, 0, 15 >, projectile ) == 1.0 )
+			wait 0.25
 
-	entity attacker = DamageInfo_GetAttacker( damageInfo )
-	if ( !IsValid( attacker ) )
-		return
+		projectile.GrenadeExplode( Vector( 0, 0, 0 ) )
+	}
 
-	if ( ent != attacker )
-		return
+	void function DroneDeployFailedExplode( entity drone, entity owner )
+	{
+		if ( owner.IsPlayer() )
+		{
+			drone.SetBossPlayer( owner )
+		}
+		thread FragDroneDeplyAnimation( drone, 0.0, 0.1 )
+		drone.Signal( "SuicideSpectreExploding" )
+	}
 
-	DamageInfo_SetDamage( damageInfo, 0.0 )
-}
+	void function WaitForEnemyNotification( entity drone )
+	{
+		drone.EndSignal( "OnDeath" )
+
+		entity owner
+		entity currentTarget
+
+		while ( true )
+		{
+			// ----------------------------------
+			// Get owner and current enemy
+			// ----------------------------------
+			currentTarget = drone.GetEnemy()
+			owner = drone.GetFollowTarget()
+
+			// ----------------------------------
+			// Free roam if owner is dead or HasEnemy
+			// ----------------------------------
+			if ( !IsAlive( owner ) || currentTarget != null )
+			{
+				drone.DisableBehavior( "Follow" )
+			}
+			else
+			{
+				drone.ClearEnemy()
+				drone.EnableBehavior( "Follow" )
+			}
+
+			wait 0.25
+		}
+	}
+
+	void function FragDrone_OnDamagePlayerOrNPC( entity ent, var damageInfo )
+	{
+		if ( !IsValid( ent ) )
+			return
+
+		entity attacker = DamageInfo_GetAttacker( damageInfo )
+		if ( !IsValid( attacker ) )
+			return
+
+		if ( ent != attacker )
+			return
+
+		DamageInfo_SetDamage( damageInfo, 0.0 )
+	}
 
 #endif
 

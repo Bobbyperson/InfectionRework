@@ -65,15 +65,15 @@ const array<string> INFECTED_HINTS = [
 	"If you execute a survivor, you get their gun."
 ]
 
-
-struct {
+struct
+{
 	bool hasHadFirstInfection = false
 	bool hasHadLastInfection = false
 	bool hasResetTimer = false
 	bool evacCame = false
 	bool evacDead = false
 	array<entity> playersToNotifyOfInfection
-	
+
 	// evac stuff
 	array<entity> evacNodes
 	table<entity, int> killstreak
@@ -90,32 +90,31 @@ struct {
 
 	entity queen
 
-	array<string> lowburnreward = [ "burnmeter_ticks", 
-									"burnmeter_radar_jammer", 
-									"burnmeter_at_turret_weapon",
-									"burnmeter_arc_trap",
-									"burnmeter_phase_rewind"]
+	array<string> lowburnreward = [ "burnmeter_ticks", "burnmeter_radar_jammer", "burnmeter_at_turret_weapon", "burnmeter_arc_trap", "burnmeter_phase_rewind" ]
 
-	array<string> medburnreward = [ "burnmeter_ap_turret_weapon",
-									"burnmeter_amped_weapons",
-									"burnmeter_maphack",
-									"burnmeter_ticks", 
-									"burnmeter_radar_jammer", 
-									"burnmeter_at_turret_weapon",
-									"burnmeter_arc_trap",
-									"burnmeter_phase_rewind"]
+	array<string> medburnreward = [
+		"burnmeter_ap_turret_weapon",
+		"burnmeter_amped_weapons",
+		"burnmeter_maphack",
+		"burnmeter_ticks",
+		"burnmeter_radar_jammer",
+		"burnmeter_at_turret_weapon",
+		"burnmeter_arc_trap",
+		"burnmeter_phase_rewind"
+	]
 
-	array<string> highburnreward = ["burnmeter_ap_turret_weapon",
-									"burnmeter_amped_weapons",
-									"burnmeter_maphack",
-									"burnmeter_ticks", 
-									"burnmeter_radar_jammer", 
-									"burnmeter_at_turret_weapon",
-									// "burnmeter_smart_pistol",
-									"burnmeter_phase_rewind",
-									"burnmeter_arc_trap"]
+	array<string> highburnreward = [
+		"burnmeter_ap_turret_weapon",
+		"burnmeter_amped_weapons",
+		"burnmeter_maphack",
+		"burnmeter_ticks",
+		"burnmeter_radar_jammer",
+		"burnmeter_at_turret_weapon",
+		// "burnmeter_smart_pistol",
+		"burnmeter_phase_rewind",
+		"burnmeter_arc_trap"
+	]
 } file
-
 
 struct EvacShipSetting
 {
@@ -128,7 +127,7 @@ struct EvacShipSetting
 void function GamemodeInfection_Init()
 {
 	PrecacheParticleSystem( FX_EVAC_MARKER )
-	
+
 	SetLoadoutGracePeriodEnabled( true ) // this is disabled later
 	SetWeaponDropsEnabled( false )
 	SetShouldUseRoundWinningKillReplay( true )
@@ -147,7 +146,7 @@ void function GamemodeInfection_Init()
 	AddCallback_GameStateEnter( eGameState.Prematch, ResetPanels )
 	AddCallback_GameStateEnter( eGameState.Playing, SelectFirstInfected )
 	AddCallback_OnReceivedSayTextMessage( HardmodeChat )
-	SetTimeoutWinnerDecisionFunc( TimeoutCheckSurvivors ) 
+	SetTimeoutWinnerDecisionFunc( TimeoutCheckSurvivors )
 
 	AddCallback_GameStateEnter( eGameState.WinnerDetermined, OnWinnerDetermined )
 
@@ -155,105 +154,126 @@ void function GamemodeInfection_Init()
 	RegisterSignal( "BoostRefunded" ) // for arc trap to work
 
 	string mapname = GetMapName()
-	if (mapname != "mp_wargames"){
+	if ( mapname != "mp_wargames" )
+	{
 		SetSpawnpointGamemodeOverride( FFA )
 	}
-	switch(mapname)
+	switch ( mapname )
 	{
 		case "mp_angel_city":
 			file.evacNodes = []
 			file.evacNodes.append( CreateScriptRef( < 2527.889893, -2865.360107, 753.002991 >, < 0, -80.54, 0 > ) )
 			file.evacNodes.append( CreateScriptRef( < 1253.530029, -554.075012, 811.125 >, < 0, 180, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < 2446.989990, 809.364014, 576.0 >, < 0, 90.253, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < -2027.430054, 960.395020, 609.007996 >, < 0, 179.604, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < 2446.98999, 809.364014, 576.0 >, < 0, 90.253, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < -2027.430054, 960.39502, 609.007996 >, < 0, 179.604, 0 > ) )
 			file.spaceNode = CreateScriptRef( < -1700, -5500, -7600 >, < -3.620642, 270.307129, 0 > )
-		break
+			break
 
 		case "mp_colony02":
 			file.evacNodes.append( CreateScriptRef( < -475.129913, 1480.167847, 527.363953 >, < 0, 219.338501, 0 > ) )
 			file.evacNodes.append( CreateScriptRef( < 1009.315186, 3999.888916, 589.914917 >, < 0, -146.680725, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < 2282.868896, -1363.706543, 846.188660 >, < 0, -146.680725, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < 2282.868896, -1363.706543, 846.18866 >, < 0, -146.680725, 0 > ) )
 			file.evacNodes.append( CreateScriptRef( < 1911.771606, -752.053101, 664.741821 >, < 0, 138.721191, 0 > ) )
 			file.evacNodes.append( CreateScriptRef( < 1985.563232, -1205.455078, 677.444763 >, < 0, -239.877441, 0 > ) )
 			file.evacNodes.append( CreateScriptRef( < -59.625496, -1858.108887, 811.592407 >, < 0, -252.775146, 0 > ) )
-			file.evacNodes.append( CreateScriptRef( < -1035.991211, -671.114380, 824.180908 >, < 0, -24.511070, 0 > ) )
+			file.evacNodes.append( CreateScriptRef( < -1035.991211, -671.11438, 824.180908 >, < 0, -24.51107, 0 > ) )
 			file.spaceNode = CreateScriptRef( < -1700, -5500, -7600 >, < -3.620642, 270.307129, 0 > )
-		break
+			break
 
 		case "mp_wargames":
-			file.evacNodes.append( CreateScriptRef( < -1254.61, 3538.7, 279.014 >, < 0, 90.6091, 0 >))
+			file.evacNodes.append( CreateScriptRef( < -1254.61, 3538.7, 279.014 >, < 0, 90.6091, 0 > ) )
 			file.spaceNode = CreateScriptRef( < -1700, -5500, -7600 >, < -3.620642, 270.307129, 0 > )
-		break
-		
+			break
+
 		case "mp_lf_stacks":
 			file.evacNodes.append( CreateScriptRef( < 294.715, 2164.05, 360.226 >, < 0, -90.66, 0 > ) )
 			file.spaceNode = ( CreateScriptRef( < -1583.54, 2065.05, 1447.59 >, < 0, -152.03, 0 > ) )
-		break
-		
+			break
+
 		case "mp_lf_deck":
 			file.evacNodes.append( CreateScriptRef( < 261.644, -1836.96, 458.099 >, < 0, 89.4534, 0 > ) )
 			file.spaceNode = ( CreateScriptRef( < -3546.1, -3402.22, 2210.24 >, < 0, -11.7048, 0 > ) )
-		break
-		
+			break
+
 		case "mp_lf_meadow":
 			file.evacNodes.append( CreateScriptRef( < 128.004, -1598.94, 456.993 >, < 0, 89.8562, 0 > ) )
 			file.spaceNode = ( CreateScriptRef( < 2501.73, -1671.72, 1436.55 >, < 0, 26.0562, 0 > ) )
-		break
+			break
 
 		case "mp_lf_traffic":
 			file.evacNodes.append( CreateScriptRef( < 354.044, -1735.66, 218.531 >, < 0, 89.1288, 0 > ) )
 			file.spaceNode = ( CreateScriptRef( < 4998.45, 110.398, -6136.04 >, < 0, 179.053, 0 > ) )
-		break
+			break
 
 		case "mp_lf_township":
 			file.evacNodes.append( CreateScriptRef( < 1299.63, 130.964, 375.644 >, < 0, -178.711, 0 > ) )
-			file.spaceNode = (CreateScriptRef( < 4998.45, 110.398, -6136.04 >, < 0, 179.053, 0 > ) )
-		break
+			file.spaceNode = ( CreateScriptRef( < 4998.45, 110.398, -6136.04 >, < 0, 179.053, 0 > ) )
+			break
 
 		case "mp_lf_uma":
-			file.evacNodes.append(CreateScriptRef( < 994.444, 359.271, 218.583 >, < 0, -177.181, 0 > ) )
-			file.spaceNode = (CreateScriptRef( < 4998.45, 110.398, -6136.04 >, < 0, 168.053, 0 > ) )
-		break
+			file.evacNodes.append( CreateScriptRef( < 994.444, 359.271, 218.583 >, < 0, -177.181, 0 > ) )
+			file.spaceNode = ( CreateScriptRef( < 4998.45, 110.398, -6136.04 >, < 0, 168.053, 0 > ) )
+			break
 
 		case "mp_coliseum":
-			file.evacNodes.append(CreateScriptRef( < -3.50534, -4.30921, 126.576 >, < 0, 173.968, 0 > ) )
-			file.spaceNode = (CreateScriptRef( < 2988.35, 1367.398, 1354.04 >, < 0, 158.053, 0 > ) )
-			InfectionAddPanelSpawns([ <4.77621, 27.3504, 6.49609>, <0, 0, 0> ])
-		break
+			file.evacNodes.append( CreateScriptRef( < -3.50534, -4.30921, 126.576 >, < 0, 173.968, 0 > ) )
+			file.spaceNode = ( CreateScriptRef( < 2988.35, 1367.398, 1354.04 >, < 0, 158.053, 0 > ) )
+			InfectionAddPanelSpawns( [ < 4.77621, 27.3504, 6.49609 >, < 0, 0, 0 > ] )
+			break
 
 		case "mp_coliseum_column":
-			file.evacNodes.append(CreateScriptRef( < -3.50534, -4.30921, 126.576 >, < 0, 173.968, 0 > ) )
-			file.spaceNode = (CreateScriptRef( < 2988.35, 1367.398, 1354.04 >, < 0, 158.053, 0 > ) )
-		break
+			file.evacNodes.append( CreateScriptRef( < -3.50534, -4.30921, 126.576 >, < 0, 173.968, 0 > ) )
+			file.spaceNode = ( CreateScriptRef( < 2988.35, 1367.398, 1354.04 >, < 0, 158.053, 0 > ) )
+			break
 
 		case "mp_forwardbase_kodai":
-			InfectionAddPanelSpawns([
-				< 2472.952392578125, 3212.56591796875, 992.237548828125 >, <0.0, 90.0, 0.0>,
-				< 1407.9998779296876, 2856.232421875, 1096.2265625 >, <0.0, 90.0, 0.0>,
-				< -402.2103576660156, 2641.76708984375, 960.03125 >, <0.0, 0.0, 0.0>,
-				< -319.26348876953127, 3216.9287109375, 1097.03125 >, <0.0, 90.0, 0.0>,
-				< -40.30308532714844, 865.5199584960938, 1096.03125 >, <0.0, 180.0, 0.0>,
-				< 56.031185150146487, 866.6178588867188, 1096.03125 >, <0.0, 0.0, 0.0>,
-				< 1131.0697021484376, 641.03125, 959.978271484375 >, <0.0, 90.0, 0.0>,
-				< -768.03125, 545.4030151367188, 960.03125 >, <0.0, 180.0, 0.0>,
-				< -1319.96875, 878.9300537109375, 1096.03125 >, <0.0, 0.0, 0.0>,
-				< 1181.820068359375, 195.2162322998047, 1096.03125 >, <0.0, 0.0, 0.0>,
-				< 734.2090454101563, -2456.636474609375, 953.5282592773438 >, <0.0, -90.0, 0.0>,
-				< -679.96875, -1984.6761474609376, 952.03125 >, <0.0, 0.0, 0.0>,
-				< -3006.97119140625, 2064.37060546875, 4741.68408203125 >, <0.0, -90.0, 0.0>,
-				< -1049.275634765625, 2753.13232421875, 966.0291748046875 >, <0.0, 180.0, 0.0>,
-				< -1072.95703125, -103.04417419433594, 961.4425048828125 >, <0.0, -90.0, 0.0>,
-				< 2761.6484375, -495.3310852050781, 948.682373046875 >, <0.0, -90.0, 0.0>,
-				< 623.96875, 814.5533447265625, 960.03125 >, <0.0, 180.0, 0.0>,
-				< 1459.1153564453126, 953.568115234375, 960.03125 >, <0.0, 180.0, 0.0>
-			])
-		break
-		
+			InfectionAddPanelSpawns(
+				[
+					< 2472.952392578125, 3212.56591796875, 992.237548828125 >,
+					< 0.0, 90.0, 0.0 >,
+					< 1407.9998779296875, 2856.232421875, 1096.2265625 >,
+					< 0.0, 90.0, 0.0 >,
+					< -402.2103576660156, 2641.76708984375, 960.03125 >,
+					< 0.0, 0.0, 0.0 >,
+					< -319.26348876953125, 3216.9287109375, 1097.03125 >,
+					< 0.0, 90.0, 0.0 >,
+					< -40.30308532714844, 865.5199584960938, 1096.03125 >,
+					< 0.0, 180.0, 0.0 >,
+					< 56.031185150146484, 866.6178588867188, 1096.03125 >,
+					< 0.0, 0.0, 0.0 >,
+					< 1131.0697021484375, 641.03125, 959.978271484375 >,
+					< 0.0, 90.0, 0.0 >,
+					< -768.03125, 545.4030151367188, 960.03125 >,
+					< 0.0, 180.0, 0.0 >,
+					< -1319.96875, 878.9300537109375, 1096.03125 >,
+					< 0.0, 0.0, 0.0 >,
+					< 1181.820068359375, 195.2162322998047, 1096.03125 >,
+					< 0.0, 0.0, 0.0 >,
+					< 734.2090454101562, -2456.636474609375, 953.5282592773438 >,
+					< 0.0, -90.0, 0.0 >,
+					< -679.96875, -1984.6761474609375, 952.03125 >,
+					< 0.0, 0.0, 0.0 >,
+					< -3006.97119140625, 2064.37060546875, 4741.68408203125 >,
+					< 0.0, -90.0, 0.0 >,
+					< -1049.275634765625, 2753.13232421875, 966.0291748046875 >,
+					< 0.0, 180.0, 0.0 >,
+					< -1072.95703125, -103.04417419433594, 961.4425048828125 >,
+					< 0.0, -90.0, 0.0 >,
+					< 2761.6484375, -495.3310852050781, 948.682373046875 >,
+					< 0.0, -90.0, 0.0 >,
+					< 623.96875, 814.5533447265625, 960.03125 >,
+					< 0.0, 180.0, 0.0 >,
+					< 1459.1153564453125, 953.568115234375, 960.03125 >,
+					< 0.0, 180.0, 0.0 >
+				]
+			)
+			break
+
 		default:
-		break
+			break
 	}
 
-	PrecacheModel($"models/creatures/prowler/r2_prowler.mdl")
+	PrecacheModel( $"models/creatures/prowler/r2_prowler.mdl" )
 
 	AddCallback_EntitiesDidLoad( SpawnPanelsForLevel )
 	RegisterWeaponDamageSource( "funnyboomer", "Boomer Explosion" )
@@ -261,13 +281,18 @@ void function GamemodeInfection_Init()
 	thread ShowHintsToSurvivors()
 }
 
-void function ShowHintsToSurvivors() {
-	while ( true ) {
+void function ShowHintsToSurvivors()
+{
+	while ( true )
+	{
 		wait 90
 		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-		if ( survivors.len() > 0 ) {
-			foreach ( entity player in survivors ) {
-				if ( IsValid( player ) ) { 
+		if ( survivors.len() > 0 )
+		{
+			foreach ( entity player in survivors )
+			{
+				if ( IsValid( player ) )
+				{
 					NSSendInfoMessageToPlayer( player, SURVIVOR_HINTS.getrandom() )
 				}
 			}
@@ -292,13 +317,14 @@ void function InfectionInitPlayer( entity player )
 
 void function InfectionOnPlayerDisconnected( entity player )
 {
-	thread InfectionOnPlayerDisconnectedDelayed(player)
+	thread InfectionOnPlayerDisconnectedDelayed( player )
 }
 
 // gotta start documenting code even more since this file is getting bigger and bigger each time
 void function InfectionOnPlayerDisconnectedDelayed( entity player ) // 7 august 2023
 {
-	if ( !file.hasHadFirstInfection ) {
+	if ( !file.hasHadFirstInfection )
+	{
 		return
 	}
 	WaitFrame()
@@ -310,18 +336,18 @@ void function InfectionOnPlayerDisconnectedDelayed( entity player ) // 7 august 
 		if ( survivors.len() > 0 )
 		{
 			int selected = RandomInt( survivors.len() )
-			entity infected = survivors[ selected ]
+			entity infected = survivors[selected]
 
 			// give a 5 seconds heads up to the selected player and everyone else
 			foreach ( entity player in GetPlayerArray() )
 				if ( player != infected )
-					NSSendAnnouncementMessageToPlayer( player, "NEW HOST FOUND", "A random survivor will be infected in 5 seconds!", <0,1,0>, 1, 0 )
+					NSSendAnnouncementMessageToPlayer( player, "NEW HOST FOUND", "A random survivor will be infected in 5 seconds!", < 0, 1, 0 >, 1, 0 )
 				else
-					NSSendAnnouncementMessageToPlayer( player, "YOU HAVE BECOME INFECTED", "You will become infected in 5 seconds!", <0,1,0>, 1, 1 )
+					NSSendAnnouncementMessageToPlayer( player, "YOU HAVE BECOME INFECTED", "You will become infected in 5 seconds!", < 0, 1, 0 >, 1, 1 )
 
 			HolsterViewModelAndDisableWeapons( infected )
 			wait 5.0
-			if ( !IsValid(infected) )
+			if ( !IsValid( infected ) )
 				return
 			InfectPlayer( infected, infected )
 			RespawnInfected( infected )
@@ -363,9 +389,9 @@ void function InfectionNoIntroStart()
 
 	foreach ( entity player in GetPlayerArray() )
 		InfectionInitSpawnPlayer( player )
-		
+
 	wait 10.0
-		
+
 	foreach ( entity player in GetPlayerArray() )
 	{
 		if ( !IsPrivateMatchSpectator( player ) )
@@ -373,10 +399,10 @@ void function InfectionNoIntroStart()
 			player.UnfreezeControlsOnServer()
 			RemoveCinematicFlag( player, CE_FLAG_CLASSIC_MP_SPAWNING )
 		}
-			
+
 		TryGameModeAnnouncement( player )
 	}
-	
+
 	ClassicMP_OnIntroFinished()
 }
 
@@ -394,33 +420,40 @@ void function InfectionNoIntroSetup()
 //
 // ===============================================================================
 
-ClServer_MessageStruct function HardmodeChat(ClServer_MessageStruct message)
+ClServer_MessageStruct function HardmodeChat( ClServer_MessageStruct message )
 {
 	string msg = message.message.tolower()
 
-	if (msg.len() == 0 )
+	if ( msg.len() == 0 )
 		return message
 
-	if (format("%c", msg[0]) == "!") {
-		printl("Chat Command Found")
+	if ( format( "%c", msg[0] ) == "!" )
+	{
+		printl( "Chat Command Found" )
 		// command
-		msg = msg.slice(1) // remove !
+		msg = msg.slice( 1 ) // remove !
 
-		if (msg == "hardmode")
+		if ( msg == "hardmode" )
 		{
 			message.shouldBlock = true
 			entity player = message.player
-			if ( player.GetTeam() == INFECTION_TEAM_SURVIVOR && file.hardmode[player] == false && GameTime_TimeLeftSeconds() >= ( 300.0 ) ) {
+			if ( player.GetTeam() == INFECTION_TEAM_SURVIVOR && file.hardmode[player] == false && GameTime_TimeLeftSeconds() >= ( 300.0 ) )
+			{
 				GetFuckedLoser( player )
 				file.hardmode[player] = true
-			} else {
-				NSSendInfoMessageToPlayer(player, "NO!!!!!!!")
 			}
-		} else if (msg == "bark") {
+			else
+			{
+				NSSendInfoMessageToPlayer( player, "NO!!!!!!!" )
+			}
+		}
+		else if ( msg == "bark" )
+		{
 			entity player = message.player
 			if ( IsValid( player ) || IsAlive( player ) )
 				return message
-			if ( player.GetTeam() == INFECTION_TEAM_INFECTED ) {
+			if ( player.GetTeam() == INFECTION_TEAM_INFECTED )
+			{
 				EmitSoundOnEntity( player, "prowler_vocal_bark" )
 			}
 		}
@@ -431,12 +464,12 @@ ClServer_MessageStruct function HardmodeChat(ClServer_MessageStruct message)
 void function GetFuckedLoser( entity player )
 {
 	// lower health to 20
-	player.SetMaxHealth(25)
-	player.SetHealth(25)
+	player.SetMaxHealth( 25 )
+	player.SetHealth( 25 )
 
 	// perma sonared
 	/* Highlight_SetEnemyHighlight( player, "enemy_boss_bounty" ) // red sonar just to make it extra spicy
-	StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) */
+	StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 )*/
 
 	thread HighlightHardmode( player )
 
@@ -446,11 +479,11 @@ void function GetFuckedLoser( entity player )
 	foreach ( entity weapon in player.GetOffhandWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
-	player.GiveWeapon( "mp_weapon_semipistol", ["silencer"] )
+	player.GiveWeapon( "mp_weapon_semipistol", [ "silencer" ] )
 	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
 
 	// xd
-	Chat_Impersonate( player, "hey infected im the guy with the red glow and i have very low hp because i think this gamemode is too easy", false)
+	Chat_Impersonate( player, "hey infected im the guy with the red glow and i have very low hp because i think this gamemode is too easy", false )
 }
 
 void function HighlightHardmode( entity player )
@@ -463,12 +496,12 @@ void function HighlightHardmode( entity player )
 	var cooldownDuration = 5.0
 	array<int> ids = []
 
-	while ( IsAlive(player) )
+	while ( IsAlive( player ) )
 	{
 		WaitFrame()
 		vector playerVelV = player.GetVelocity()
 		float playerVel = sqrt( playerVelV.x * playerVelV.x + playerVelV.y * playerVelV.y ) // not counting vertical velocity
-		float playerVelNormal = playerVel * (0.091392) // metric kph
+		float playerVelNormal = playerVel * ( 0.091392 ) // metric kph
 
 		// 0 - 45 kph is highlighted
 		if ( playerVelNormal < 45 )
@@ -478,8 +511,9 @@ void function HighlightHardmode( entity player )
 			ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
 			lastHighlightTime = Time()
 		}
-		// 46 - 65 kph is highlighted for 5 seconds every 10 seconds, 
-		// once you reach this speed from below 45 kph, you will remain highlighted for 5 seconds before clearing the highlight, then reapplying it after another 5 seconds
+		// 46 - 65 kph is highlighted for 5 seconds every 10 seconds,
+		// once you reach this speed from below 45 kph, you will remain highlighted for 5
+		// seconds before clearing the highlight, then reapplying it after another 5 seconds
 		else if ( playerVelNormal >= 45 && playerVelNormal < 66 )
 		{
 			if ( Time() - lastHighlightTime > cooldownDuration + highlightDuration )
@@ -506,7 +540,7 @@ void function HighlightHardmode( entity player )
 				ids.append( StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) )
 				lastHighlightTime = Time()
 			}
-			else if ( Time() - lastHighlightTime > highlightDuration)
+			else if ( Time() - lastHighlightTime > highlightDuration )
 			{
 				Highlight_ClearEnemyHighlight( player )
 				foreach ( id in ids )
@@ -538,31 +572,37 @@ void function SelectFirstInfected() // ?
 
 void function SelectFirstInfectedDelayed()
 {
-	srand(GetUnixTimestamp()) // don't use the same rng seed each time lol
+	srand( GetUnixTimestamp() ) // don't use the same rng seed each time lol
 	wait 5.0
-	Chat_ServerBroadcast("Join us on discord at \x1b[36mdiscord.awesome.tf", true)
+	Chat_ServerBroadcast( "Join us on discord at \x1b[36mdiscord.awesome.tf", true )
 	WaitFrame()
-	Chat_ServerBroadcast("Please do not go out of bounds.", true)
+	Chat_ServerBroadcast( "Please do not go out of bounds.", true )
 	WaitFrame()
-	Chat_ServerBroadcast("Please note, this server is temporarily running the V2 branch of Infection for playtesting. Expect crashes.", true)
+	Chat_ServerBroadcast( "Please note, this server is temporarily running the V2 branch of Infection for playtesting. Expect crashes.", true )
 	wait 5.0 + RandomFloat( 5.0 )
 	SetLoadoutGracePeriodEnabled( false )
 	WaitFrame()
-	ServerCommand("melee_lunge_scale_by_speed 0")
-	ServerCommand("sv_alltalk 1");
-	ServerCommand("slide_step_velocity_reduction 10");
-	ServerCommand("sv_gravity 750");
+	ServerCommand( "melee_lunge_scale_by_speed 0" )
+	ServerCommand( "sv_alltalk 1" )
+	ServerCommand( "slide_step_velocity_reduction 10" )
+	ServerCommand( "sv_gravity 750" )
 
 	int playerCount = GetPlayerArray().len()
-	if (playerCount <= 1)
+	if ( playerCount <= 1 )
 		return
 
-	if ( file.hasHadFirstInfection ){ // in case a player joins and gets infected before this happens
+	if ( file.hasHadFirstInfection )
+	{ // in case a player joins and gets infected before this happens
 		array<entity> players = GetPlayerArray()
 		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-		if (players.len() < 8) {
-			Chat_ServerBroadcast("Due to a low playercount all survivors are sonared to keep the pace up. Please try not to sweat and make sure everyone has fun.", true)
-			foreach ( entity player in survivors ){
+		if ( players.len() < 8 )
+		{
+			Chat_ServerBroadcast(
+				"Due to a low playercount all survivors are sonared to keep the pace up. Please try not to sweat and make sure everyone has fun.",
+				true
+			)
+			foreach ( entity player in survivors )
+			{
 				Highlight_SetEnemyHighlight( player, "enemy_sonar" )
 				StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) // sonar is better here so the player themselves see the SONAR DETECTED warning.
 			}
@@ -571,14 +611,16 @@ void function SelectFirstInfectedDelayed()
 	}
 	array<entity> players = GetPlayerArray()
 
-	if (!players.len()) {
+	if ( !players.len() )
+	{
 		SetWinner( INFECTION_TEAM_SURVIVOR )
 		return
 	}
 
 	entity infected = players.getrandom()
 
-	if (file.hardmode[infected] == true) {
+	if ( file.hardmode[infected] == true )
+	{
 		infected = players.getrandom()
 	}
 
@@ -586,10 +628,12 @@ void function SelectFirstInfectedDelayed()
 	RespawnInfected( infected )
 
 	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-	
-	if (GetPlayerArray().len() < 8) {
-		Chat_ServerBroadcast("Due to a low playercount all survivors are sonared to keep the pace up.", true)
-		foreach ( entity player in survivors ){
+
+	if ( GetPlayerArray().len() < 8 )
+	{
+		Chat_ServerBroadcast( "Due to a low playercount all survivors are sonared to keep the pace up.", true )
+		foreach ( entity player in survivors )
+		{
 			Highlight_SetEnemyHighlight( player, "enemy_sonar" )
 			StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) // sonar is better here so the player themselves see the SONAR DETECTED warning.
 		}
@@ -602,7 +646,8 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 	if ( victim.GetTeam() == INFECTION_TEAM_SURVIVOR ) // this needs to happen first because of death by OOB or other reasons
 		InfectPlayer( victim, attacker )
 
-	if ( victim == file.queen ) {
+	if ( victim == file.queen )
+	{
 		file.queen = null
 	}
 
@@ -611,11 +656,10 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 
 	file.killstreak[victim] <- 0
 
-	if ( victim != attacker ) 
+	if ( victim != attacker )
 	{
 		attacker.SetPlayerGameStat( PGS_ASSAULT_SCORE, attacker.GetPlayerGameStat( PGS_ASSAULT_SCORE ) + 1 )
-		SetRoundWinningKillReplayAttacker(attacker)
-
+		SetRoundWinningKillReplayAttacker( attacker )
 
 		if ( attacker.GetTeam() == INFECTION_TEAM_SURVIVOR )
 		{
@@ -624,10 +668,9 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 			file.killstreak[attacker] += 1
 			file.deathstreak[victim] += 1
 			int kills = file.killstreak[attacker]
-			
-
 			// // if the killstreak is a multiple of 5 (5, 10, 15, etc), give a random boost
-			// if ( file.killstreak[attacker] > 4 && ( file.killstreak[attacker] % 5 == 0 ) && MapSettings_SupportsTitans( GetMapName() ) ) // prevents killstreaks on lf and coliseum
+			// if ( file.killstreak[attacker] > 4 && ( file.killstreak[attacker] % 5 == 0 ) &&
+			// MapSettings_SupportsTitans( GetMapName() ) ) // prevents killstreaks on lf and coliseum
 			// {
 			// 	string burncard
 			// 	switch ( file.killstreak[attacker] )
@@ -636,16 +679,13 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 			// 		case 5:
 			// 			burncard = file.lowburnreward.getrandom()
 			// 			break
-
 			// 		case 10:
 			// 			burncard = file.medburnreward.getrandom()
 			// 			break
-
 			// 		default: // after 10 they are all high rewards
 			// 			burncard = file.highburnreward.getrandom()
 			// 			break
 			// 	}
-
 			// 	if ( file.killstreak[attacker] == 50 )
 			// 	{
 			// 		if ( !attacker.IsTitan() && SpawnPoints_GetTitan().len() > 0 )
@@ -655,7 +695,7 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 			// 				if ( player != attacker )
 			// 					NSSendLargeMessageToPlayer( player, "TITANFALL INCOMING", attacker.GetPlayerName() + " has obtained a titan!", 7, "rui/callsigns/callsign_68_col")
 			// 		}
-			// 		else 
+			// 		else
 			// 			BurnMeter_GiveRewardDirect( attacker, burncard )
 			// 	}
 			// 	else
@@ -668,7 +708,10 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 			// attacker is infected and got a kill
 			file.deathstreak[attacker] <- 0
 
-			if ( DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution && GetGameState() == eGameState.Playing && attacker.GetTeam() == INFECTION_TEAM_INFECTED ) // 4 March 2024, if died to execution drop gun
+			if (
+				DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution && GetGameState() == eGameState.Playing &&
+				attacker.GetTeam() == INFECTION_TEAM_INFECTED
+			) // 4 March 2024, if died to execution drop gun
 			{
 				if ( !IsValid( victim ) )
 					return
@@ -679,21 +722,24 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 				attacker.GiveWeapon( weapon.GetWeaponClassName() )
 			}
 		}
-	} else {
+	}
+	else
+	{
 		array<entity> players = GetPlayerArray()
-		SetRoundWinningKillReplayAttacker(players.getrandom())
+		SetRoundWinningKillReplayAttacker( players.getrandom() )
 	}
 
 	// remove boosts from dead players
-	//thread PlayerInventory_TakeAllInventoryItems( victim )
+	// thread PlayerInventory_TakeAllInventoryItems( victim )
 	// this appears to not be needed as switching teams removes boosts.
 	if ( IsValid( victim.GetPetTitan() ) && victim.GetTeam() == INFECTION_TEAM_SURVIVOR ) // kill any titans if exists
 		victim.GetPetTitan().Destroy()
 }
 
-void function InfectPlayer( entity player, entity attacker ) {
+void function InfectPlayer( entity player, entity attacker )
+{
 	ShouldPanelsBeUsable()
-	
+
 	SetTeam( player, INFECTION_TEAM_INFECTED )
 	player.SetPlayerGameStat( PGS_ASSAULT_SCORE, 0 ) // reset kills
 	file.playersToNotifyOfInfection.append( player )
@@ -702,29 +748,40 @@ void function InfectPlayer( entity player, entity attacker ) {
 	int playerCount = GetPlayerArray().len()
 	int infectedCount = GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len()
 	int survivorCount = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len()
-	float health = ((1-(infectedCount.tofloat()/playerCount.tofloat())) * 200)
+	float health = ( ( 1 - ( infectedCount.tofloat() / playerCount.tofloat() ) ) * 200 )
 	int intHealth = health.tointeger()
-	foreach (entity infectedPlayer in infected){
-		if (IsAlive( infectedPlayer )){
-			if( GetGameState() == eGameState.Postmatch ){
+	foreach ( entity infectedPlayer in infected )
+	{
+		if ( IsAlive( infectedPlayer ) )
+		{
+			if ( GetGameState() == eGameState.Postmatch )
+			{
 				return
-			}  
-			if(infectedPlayer.IsTitan()){
+			}
+			if ( infectedPlayer.IsTitan() )
+			{
 				continue
 			}
-			if ( infectedPlayer == file.queen ) {
+			if ( infectedPlayer == file.queen )
+			{
 				continue
 			}
-			if ( IsValid( file.queen ) ){
+			if ( IsValid( file.queen ) )
+			{
 				intHealth += 25
 			}
-			if (infectedCount == 1) { // impossible to win without
+			if ( infectedCount == 1 )
+			{ // impossible to win without
 				infectedPlayer.SetMaxHealth( 200 )
 			}
-			else {
-				if (infectedCount == playerCount){
+			else
+			{
+				if ( infectedCount == playerCount )
+				{
 					infectedPlayer.SetMaxHealth( 100 )
-				} else {
+				}
+				else
+				{
 					infectedPlayer.SetMaxHealth( intHealth )
 				}
 			}
@@ -735,17 +792,20 @@ void function InfectPlayer( entity player, entity attacker ) {
 	{
 		SetRespawnsEnabled( false )
 		SetKillcamsEnabled( false )
-		if (attacker.IsPlayer()){
-			SetRoundWinningKillReplayAttacker(attacker)
-		} else {
+		if ( attacker.IsPlayer() )
+		{
+			SetRoundWinningKillReplayAttacker( attacker )
+		}
+		else
+		{
 			array<entity> infected = GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED )
-			SetRoundWinningKillReplayAttacker(infected[0])
+			SetRoundWinningKillReplayAttacker( infected[0] )
 		}
 		AddTeamScore( INFECTION_TEAM_INFECTED, 100 ) // for kill replay to work lmao
 		SetWinner( INFECTION_TEAM_INFECTED )
 	}
 	else if ( survivors.len() == 1 && !file.hasHadLastInfection && playerCount > 2 )
-		SetLastSurvivor( survivors[ 0 ] )
+		SetLastSurvivor( survivors[0] )
 
 	if ( !file.hasHadFirstInfection )
 	{
@@ -757,7 +817,7 @@ void function InfectPlayer( entity player, entity attacker ) {
 				Remote_CallFunction_NonReplay( otherPlayer, "ServerCallback_AnnounceFirstInfected", player.GetEncodedEHandle() )
 
 		PlayMusicToAll( eMusicPieceID.GAMEMODE_1 )
-		
+
 		thread CountdownToEvac()
 		thread InfectionTimedFunctions()
 	}
@@ -768,7 +828,8 @@ void function RespawnInfected( entity player )
 	if ( player.GetTeam() != INFECTION_TEAM_INFECTED )
 		return
 
-	if (file.hardmode[player] == true) {
+	if ( file.hardmode[player] == true )
+	{
 		file.hardmode[player] = false
 	}
 
@@ -788,33 +849,42 @@ void function RespawnInfected( entity player )
 		player.SetBodygroup( player.FindBodyGroup( "head" ), 1 )
 
 	// stats for infected
-	//StimPlayer( player, 9999.9 ) // can't do endless since we don't get the visual effect in endless
+	// StimPlayer( player, 9999.9 ) // can't do endless since we don't get the visual effect in endless
 
 	// scale health with num of infected
 	int playerCount = GetPlayerArray().len()
 	int infectedCount = GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len()
 	int survivorCount = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len()
-	float health = ((1-(infectedCount.tofloat()/playerCount.tofloat())) * 200)
+	float health = ( ( 1 - ( infectedCount.tofloat() / playerCount.tofloat() ) ) * 200 )
 	int intHealth = health.tointeger()
-	if ( IsValid(file.queen) ) {
+	if ( IsValid( file.queen ) )
+	{
 		intHealth += 25
 	}
-	if (infectedCount == 1) { // custom logic for the first infected
-		if (file.deathstreak[player] > 4) {
-			player.SetMaxHealth( 200 + (file.deathstreak[player] * 10) )
-			if (file.deathstreak[player] % 5 == 0) {
+	if ( infectedCount == 1 )
+	{ // custom logic for the first infected
+		if ( file.deathstreak[player] > 4 )
+		{
+			player.SetMaxHealth( 200 + ( file.deathstreak[player] * 10 ) )
+			if ( file.deathstreak[player] % 5 == 0 )
+			{
 				thread DisplayIncreasedHealth( player )
 			}
-		} else {
+		}
+		else
+		{
 			player.SetMaxHealth( 200 )
 		}
 	}
 	else
 	{
-		if (infectedCount == playerCount) {
-			player.SetMaxHealth(100)
-		} else { 
-			player.SetMaxHealth(intHealth)
+		if ( infectedCount == playerCount )
+		{
+			player.SetMaxHealth( 100 )
+		}
+		else
+		{
+			player.SetMaxHealth( intHealth )
 
 			if ( file.deathstreak[player] > 4 && infectedCount < 4 )
 				player.SetMaxHealth( intHealth + ( file.deathstreak[player] * 10 ) ) // 10 extra health per death after the 4th death, so they spawn with 50, 60, 70 and so on.
@@ -832,9 +902,10 @@ void function RespawnInfected( entity player )
 
 	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
 
-	int specialRoll = RandomInt(5)
+	int specialRoll = RandomInt( 5 )
 	bool special = false
-	if (specialRoll == 0){
+	if ( specialRoll == 0 )
+	{
 		special = true
 	}
 
@@ -842,83 +913,102 @@ void function RespawnInfected( entity player )
 	if ( IsValid( file.queen ) )
 		queenExists = true
 
-	int queenRoll = RandomInt(50)
+	int queenRoll = RandomInt( 50 )
 	bool queen = false
-	if (queenRoll == 0 && !queenExists && infectedCount > 1) {
+	if ( queenRoll == 0 && !queenExists && infectedCount > 1 )
+	{
 		queen = true
 		special = false
 	}
 
-	if (special) {
-		int specialType = RandomInt(4)
+	if ( special )
+	{
+		int specialType = RandomInt( 4 )
 		// disallow hunter with less than 8 players
-		if (playerCount < 8 || survivorCount == 1) {
-			while (specialType == 2) {
-				specialType = RandomInt(4)
+		if ( playerCount < 8 || survivorCount == 1 )
+		{
+			while ( specialType == 2 )
+			{
+				specialType = RandomInt( 4 )
 			}
 		}
-		switch (specialType) {
-
+		switch ( specialType )
+		{
 			// boomer
 			case 0:
 				thread BecomeBoomer( player )
-				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Boomer Variant!", <1,0,0>, 1, 0 )
-				thread HandleHighlight( player, <1,0,0> )
-			break
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Boomer Variant!", < 1, 0, 0 >, 1, 0 )
+				thread HandleHighlight( player, < 1, 0, 0 > )
+				break
+				// shifter
 
-			// shifter
 			case 1:
-				player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL)
-				player.GiveOffhandWeapon("mp_ability_shifter", OFFHAND_ORDNANCE)
+				player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_SPECIAL )
+				player.GiveOffhandWeapon( "mp_ability_shifter", OFFHAND_ORDNANCE )
 				player.GiveWeapon( "mp_weapon_mgl" )
-				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Shifter Variant!", <0,1,0>, 1, 0 )
-				thread HandleHighlight( player, <0,1,0> )
-			break
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Shifter Variant!", < 0, 1, 0 >, 1, 0 )
+				thread HandleHighlight( player, < 0, 1, 0 > )
+				break
+				// hunter
 
-			// hunter
 			case 2:
 				thread BecomeHunter( player )
 				player.GiveWeapon( "mp_weapon_mgl" )
-				player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL)
-				player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
-				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Seeker Variant!", <1,0,1>, 1, 0 )
-				thread HandleHighlight( player, <1,0,1> )
-			break
+				player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_SPECIAL )
+				player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_ORDNANCE )
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Seeker Variant!", < 1, 0, 1 >, 1, 0 )
+				thread HandleHighlight( player, < 1, 0, 1 > )
+				break
+				// spitter
 
-			// spitter
 			case 3:
-				player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_SPECIAL)
-				player.GiveOffhandWeapon("mp_weapon_thermite_grenade", OFFHAND_ORDNANCE)
+				player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_SPECIAL )
+				player.GiveOffhandWeapon( "mp_weapon_thermite_grenade", OFFHAND_ORDNANCE )
 				player.GiveWeapon( "mp_weapon_mgl" )
-				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Spitter Variant!", <0,0,1>, 1, 0 )
-				thread HandleHighlight( player, <0,0,1> )
-			break
+				thread NSSendAnnouncementMessageToPlayer_Delayed( player, "VIRUS MUTATION", "Spitter Variant!", < 0, 0, 1 >, 1, 0 )
+				thread HandleHighlight( player, < 0, 0, 1 > )
+				break
+				// default
 
-			// default
 			default:
-				printt("Programming error.")
-			break
+				printt( "Programming error." )
+				break
 		}
-	} else if (queen) {
+	}
+	else if ( queen )
+	{
 		StimPlayer( player, 9999.9 )
 		player.GiveWeapon( "mp_weapon_mgl" )
-		thread NSSendAnnouncementMessageToPlayer_Delayed( player, "YOU ARE THE HIVE QUEEN", "All infected spawn near you!", <1,1,1>, 1, 0 )
-		thread HandleHighlight( player, <1,0,0>, true )
+		thread NSSendAnnouncementMessageToPlayer_Delayed( player, "YOU ARE THE HIVE QUEEN", "All infected spawn near you!", < 1, 1, 1 >, 1, 0 )
+		thread HandleHighlight( player, < 1, 0, 0 >, true )
 		file.queen = player
 		player.SetMaxHealth( 250 )
-		foreach ( entity survivorPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) ) {
-			thread NSSendAnnouncementMessageToPlayer_Delayed( survivorPlayer, "HIVE QUEEN DETECTED", "Eliminate it ASAP to weaken the infection!", <1,0,0>, 1, 0 )
+		foreach ( entity survivorPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) )
+		{
+			thread NSSendAnnouncementMessageToPlayer_Delayed( survivorPlayer, "HIVE QUEEN DETECTED", "Eliminate it ASAP to weaken the infection!", < 1, 0, 0 >, 1, 0 )
 		}
-		foreach ( entity infectedPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ) ) {
-			if (infectedPlayer != player) {
-				thread NSSendAnnouncementMessageToPlayer_Delayed( infectedPlayer, "HIVE QUEEN DETECTED", "You feel stronger! Protect the Hive Queen at all costs!", <1,1,1>, 1, 0 )
+		foreach ( entity infectedPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ) )
+		{
+			if ( infectedPlayer != player )
+			{
+				thread NSSendAnnouncementMessageToPlayer_Delayed(
+					infectedPlayer,
+					"HIVE QUEEN DETECTED",
+					"You feel stronger! Protect the Hive Queen at all costs!",
+					< 1, 1, 1 >,
+					1,
+					0
+				)
 			}
 		}
-	} else {
-		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
-		player.GiveOffhandWeapon("mp_ability_heal", OFFHAND_ORDNANCE )
+	}
+	else
+	{
+		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_SPECIAL )
+		player.GiveOffhandWeapon( "mp_ability_heal", OFFHAND_ORDNANCE )
 		player.GiveWeapon( "mp_weapon_mgl" )
-		if (RandomInt(10) == 0) {
+		if ( RandomInt( 10 ) == 0 )
+		{
 			NSSendInfoMessageToPlayer( player, INFECTED_HINTS.getrandom() ) // don't want to do this for special infected because they might have special info text
 		}
 	}
@@ -927,32 +1017,37 @@ void function RespawnInfected( entity player )
 	// LOS and nearby survivors. This seems to be the best compromise for now.
 	array<entity> spawnPoints = SpawnPoints_GetPilot()
 	entity closestSpawnPoint = spawnPoints[0]
-	if (queenExists) {
-		foreach (entity spawnPoint in spawnPoints) {
-			if (DistanceSqr(spawnPoint.GetOrigin(), file.queen.GetOrigin()) < DistanceSqr(closestSpawnPoint.GetOrigin(), file.queen.GetOrigin())) {
-
-				bool valid = true;
-				foreach (entity survivor in GetPlayerArrayOfTeam(INFECTION_TEAM_SURVIVOR)) {
-					if (DistanceSqr(spawnPoint.GetOrigin(), survivor.GetOrigin()) < 500) {
+	if ( queenExists )
+	{
+		foreach ( entity spawnPoint in spawnPoints )
+		{
+			if ( DistanceSqr( spawnPoint.GetOrigin(), file.queen.GetOrigin() ) < DistanceSqr( closestSpawnPoint.GetOrigin(), file.queen.GetOrigin() ) )
+			{
+				bool valid = true
+				foreach ( entity survivor in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) )
+				{
+					if ( DistanceSqr( spawnPoint.GetOrigin(), survivor.GetOrigin() ) < 500 )
+					{
 						valid = false
 						break
 					}
 				}
 
-				if (valid) {
+				if ( valid )
+				{
 					closestSpawnPoint = spawnPoint
 				}
 			}
 		}
-		player.SetOrigin(closestSpawnPoint.GetOrigin())
+		player.SetOrigin( closestSpawnPoint.GetOrigin() )
 	}
-
 
 	thread PlayInfectedSounds( player )
 }
 
 // this exists because sometimes the message is sent when a non-NS announcement is sent, which causes it to not appear ever
-void function NSSendAnnouncementMessageToPlayer_Delayed( entity player, string title, string description, vector color, int priority, int style ){
+void function NSSendAnnouncementMessageToPlayer_Delayed( entity player, string title, string description, vector color, int priority, int style )
+{
 	wait 1.0
 	NSSendAnnouncementMessageToPlayer( player, title, description, color, priority, style )
 }
@@ -960,23 +1055,27 @@ void function NSSendAnnouncementMessageToPlayer_Delayed( entity player, string t
 void function HandleHighlight( entity player, vector color, bool wallhacks = false )
 {
 	// sp_friendly_pilot is like the only one that doesnt go through walls
-	if ( wallhacks ) {
+	if ( wallhacks )
+	{
 		Highlight_SetFriendlyHighlight( player, "sp_objective_entity" )
 		player.Highlight_SetParam( 1, 0, color )
 		Highlight_SetEnemyHighlight( player, "sp_objective_entity" )
 		player.Highlight_SetParam( 2, 0, color )
-	} else {
+	}
+	else
+	{
 		Highlight_SetFriendlyHighlight( player, "sp_friendly_pilot" )
 		player.Highlight_SetParam( 1, 0, color )
 		Highlight_SetEnemyHighlight( player, "sp_friendly_pilot" )
 		player.Highlight_SetParam( 2, 0, color )
 	}
 
-	while ( IsAlive(player) && IsValid(player) ) {
+	while ( IsAlive( player ) && IsValid( player ) )
+	{
 		WaitFrame()
 	}
 
-	if ( !IsValid(player) )
+	if ( !IsValid( player ) )
 		return
 
 	Highlight_ClearEnemyHighlight( player )
@@ -986,15 +1085,17 @@ void function HandleHighlight( entity player, vector color, bool wallhacks = fal
 void function DisplayIncreasedHealth( entity player )
 {
 	wait 1.0
-	if ( !IsValid(player) )
+	if ( !IsValid( player ) )
 		return
-	NSSendAnnouncementMessageToPlayer( player, "VIRAL RESILIENCE", "Your health has been increased!", <1,1,1>, 1, 0 )
+	NSSendAnnouncementMessageToPlayer( player, "VIRAL RESILIENCE", "Your health has been increased!", < 1, 1, 1 >, 1, 0 )
 	wait 1.0
 	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 
-	foreach ( entity survivor in survivors) {
-		if ( IsValid(survivor) ) {
-			NSSendAnnouncementMessageToPlayer( survivor, "MUTATION DETECTED", "An infected with increased health has been detected!", <1,0,0>, 1, 0 )
+	foreach ( entity survivor in survivors )
+	{
+		if ( IsValid( survivor ) )
+		{
+			NSSendAnnouncementMessageToPlayer( survivor, "MUTATION DETECTED", "An infected with increased health has been detected!", < 1, 0, 0 >, 1, 0 )
 		}
 	}
 }
@@ -1009,23 +1110,25 @@ void function BecomeBoomer( entity player )
 	foreach ( entity weapon in player.GetOffhandWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
 
-	if ( RandomInt(10) == 0 ) { // give phase
-		player.GiveOffhandWeapon("mp_ability_shifter_super", OFFHAND_SPECIAL ) // toggle phase shift, side effect is that you slowly grow blind while in the phase dimension
+	if ( RandomInt( 10 ) == 0 )
+	{ // give phase
+		player.GiveOffhandWeapon( "mp_ability_shifter_super", OFFHAND_SPECIAL ) // toggle phase shift, side effect is that you slowly grow blind while in the phase dimension
 		array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
-		foreach ( entity survivor in survivors) {
-			thread NSSendAnnouncementMessageToPlayer_Delayed( survivor, "MUTATION DETECTED", "A phase boomer has spawned!", <1,0,0>, 1, 0 )
+		foreach ( entity survivor in survivors )
+		{
+			thread NSSendAnnouncementMessageToPlayer_Delayed( survivor, "MUTATION DETECTED", "A phase boomer has spawned!", < 1, 0, 0 >, 1, 0 )
 		}
 	}
 	else
-		player.GiveOffhandWeapon("mp_ability_grapple", OFFHAND_SPECIAL )
+		player.GiveOffhandWeapon( "mp_ability_grapple", OFFHAND_SPECIAL )
 
 	// required to allow boomer to use offhands, they explode anyways if they try to use melee
-	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE, [ "allow_as_primary" ])
+	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE, [ "allow_as_primary" ] )
 	player.SetActiveWeaponByName( "melee_pilot_emptyhanded" )
 
 	// health no longer nerfed
-	//player.SetMaxHealth( player.GetMaxHealth() )
-	//player.SetHealth( player.GetMaxHealth() )
+	// player.SetMaxHealth( player.GetMaxHealth() )
+	// player.SetHealth( player.GetMaxHealth() )
 
 	// Change enemy highlight color to orange in RGB
 	Highlight_SetEnemyHighlightWithParam0( player, "enemy_player", < 255, 165, 0 > )
@@ -1033,10 +1136,10 @@ void function BecomeBoomer( entity player )
 	// Give amped battery trail FX
 	int attachID = player.LookupAttachment( "CHESTFOCUS" )
 	int friendlyTeam = player.GetTeam()
-	entity boomerFX = StartParticleEffectOnEntity_ReturnEntity( player, GetParticleSystemIndex( BATTERY_FX_AMPED) , FX_PATTACH_POINT_FOLLOW, attachID )
+	entity boomerFX = StartParticleEffectOnEntity_ReturnEntity( player, GetParticleSystemIndex( BATTERY_FX_AMPED ), FX_PATTACH_POINT_FOLLOW, attachID )
 	SetTeam( boomerFX, friendlyTeam )
 	boomerFX.SetOwner( player )
-	boomerFX.kv.VisibilityFlags = (ENTITY_VISIBLE_TO_FRIENDLY | ENTITY_VISIBLE_TO_ENEMY) // visible except owner
+	boomerFX.kv.VisibilityFlags = ( ENTITY_VISIBLE_TO_FRIENDLY | ENTITY_VISIBLE_TO_ENEMY ) // visible except owner
 
 	// callback for player input
 	AddButtonPressedPlayerInputCallback( player, IN_ATTACK, BoomerAttack )
@@ -1044,7 +1147,7 @@ void function BecomeBoomer( entity player )
 	// AddButtonPressedPlayerInputCallback( player, IN_OFFHAND1, PhaseExplode )
 
 	OnThreadEnd(
-	function() : ( player, boomerFX )
+		function() : ( player, boomerFX )
 		{
 			RemoveButtonPressedPlayerInputCallback( player, IN_ATTACK, BoomerAttack )
 			RemoveButtonPressedPlayerInputCallback( player, IN_MELEE, BoomerAttack )
@@ -1055,7 +1158,7 @@ void function BecomeBoomer( entity player )
 	)
 
 	// Inform the player
-	NSSendInfoMessageToPlayer(player, "Press %%attack%% to explode!")
+	NSSendInfoMessageToPlayer( player, "Press %%attack%% to explode!" )
 
 	WaitSignal( player, "StartPhaseShift" ) // replacement for WaitForever, would only get triggered if the player has phase shift and activated it.
 	RemoveButtonPressedPlayerInputCallback( player, IN_ATTACK, BoomerAttack )
@@ -1071,24 +1174,24 @@ void function PhaseExplodeThreaded( entity player )
 
 void function BoomerAttack( entity player )
 {
-
 	// create an explosion at the player's location
 	PlayFX( $"P_impact_exp_FRAG_metal", player.GetOrigin(), < -90.0, 0.0, 0.0 > )
 	EmitSoundOnEntityExceptToPlayer( player, player, "explo_fraggrenade_impact_3p" )
 	EmitSoundAtPositionOnlyToPlayer( TEAM_UNASSIGNED, player.GetOrigin(), player, "explo_fraggrenade_impact_1p" )
 	RadiusDamage(
-		player.EyePosition(),												// origin
-		player,												// owner
-		player,		 									// inflictor
-		200,							// pilot damage
-		2500,									// heavy armor damage aka titans :)
-		5,					// inner radius
-		320,					// outer radius
-		SF_ENVEXPLOSION_NO_NPC_SOUND_EVENT,					// explosion flags
-		0, 													// distanceFromAttacker
-		0, 													// explosionForce
-		DF_EXPLOSION | DF_GIB,										// damage flags
-		eDamageSourceId.funnyboomer		// damage source id
+		player.EyePosition(), // origin
+		player, // owner
+		player, // inflictor
+		200, // pilot damage
+		2500, // heavy armor damage aka titans :)
+		5, // inner radius
+		320, // outer radius
+		SF_ENVEXPLOSION_NO_NPC_SOUND_EVENT, // explosion flags
+		0, // distanceFromAttacker
+		0, // explosionForce
+		DF_EXPLOSION | DF_GIB, // damage flags
+		eDamageSourceId
+			.funnyboomer // damage source id
 	)
 }
 
@@ -1098,14 +1201,14 @@ void function BecomeHunter( entity player )
 	player.EndSignal( "OnDestroy" )
 
 	// every 10 seconds, emit a sonar pulse
-	while (true)
+	while ( true )
 	{
 		wait 10.0
 		PlayFX( $"exp_sonar_pulse", player.GetOrigin(), < -90.0, 0.0, 0.0 > )
 		PulseLocation( player, player.GetTeam(), player.GetOrigin(), false, false )
 		EmitSoundAtPositionExceptToPlayer( TEAM_UNASSIGNED, player.GetOrigin(), player, "Titan_Tone_SonarLock_Impact_Pulse_3P" )
 		EmitSoundAtPositionOnlyToPlayer( TEAM_UNASSIGNED, player.GetOrigin(), player, "Titan_Tone_SonarLock_Impact_Pulse_1P" )
-		EmitSoundOnEntity( player, "prowler_vocal_howl")
+		EmitSoundOnEntity( player, "prowler_vocal_howl" )
 	}
 }
 
@@ -1125,7 +1228,15 @@ void function CountdownToEvac()
 			EVAC_WAIT_TIME = 15.0
 
 			PlayMusicToAll( eMusicPieceID.LEVEL_LAST_MINUTE )
-			thread SurvivorEvac( INFECTION_TEAM_SURVIVOR, EVAC_INITIAL_WAIT, EVAC_ARRIVAL_TIME, EVAC_WAIT_TIME, CanPlayerBoardEvac, EvacEpilogueShouldLeaveEarly, EvacEpilogueCompleted )
+			thread SurvivorEvac(
+				INFECTION_TEAM_SURVIVOR,
+				EVAC_INITIAL_WAIT,
+				EVAC_ARRIVAL_TIME,
+				EVAC_WAIT_TIME,
+				CanPlayerBoardEvac,
+				EvacEpilogueShouldLeaveEarly,
+				EvacEpilogueCompleted
+			)
 			return
 		}
 
@@ -1136,15 +1247,15 @@ void function CountdownToEvac()
 void function InfectionTimedFunctions()
 {
 	// ensure shitters are still infected if evac dies
-	while (true)
+	while ( true )
 	{
-		if (file.evacDead) 
+		if ( file.evacDead )
 		{
 			if ( GameTime_TimeLeftSeconds() <= 5.0 )
 			{
 				array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 
-				foreach ( entity player in survivors)
+				foreach ( entity player in survivors )
 					InfectPlayer( player, player )
 			}
 		}
@@ -1175,7 +1286,15 @@ void function PlayInfectedSounds( entity player )
 		int meleeState = player.PlayerMelee_GetState()
 		if ( nextRandomSound < Time() || meleeState != 0 )
 		{
-			array<string> infectedSounds = [ "prowler_vocal_attack", "prowler_vocal_attackmiss", "prowler_vocal_attackfast", "prowler_vocal_growl_small", "prowler_vocal_growl_large", "prowler_vocal_pissed", "prowler_vocal_bark" ]
+			array<string> infectedSounds = [
+				"prowler_vocal_attack",
+				"prowler_vocal_attackmiss",
+				"prowler_vocal_attackfast",
+				"prowler_vocal_growl_small",
+				"prowler_vocal_growl_large",
+				"prowler_vocal_pissed",
+				"prowler_vocal_bark"
+			]
 			string selectedSound
 			selectedSound = infectedSounds.getrandom()
 
@@ -1189,7 +1308,7 @@ void function PlayInfectedSounds( entity player )
 				selectedSound += "_int"
 
 			EmitSoundOnEntity( player, selectedSound )
-			EmitAISoundWithOwner( player, SOUND_PLAYER, 0, player.GetOrigin(), 1600, 2 ) 
+			EmitAISoundWithOwner( player, SOUND_PLAYER, 0, player.GetOrigin(), 1600, 2 )
 			// void EmitAISoundWithOwner( entity owner, int soundFlags, int contextFlags, vector pos, float radius, float duration )
 			// zero documentation/example code on soundFlags and contextFlags btw.... no idea what they do
 
@@ -1211,33 +1330,35 @@ void function SetLastSurvivor( entity player )
 	foreach ( entity otherPlayer in GetPlayerArray() )
 		Remote_CallFunction_NonReplay( otherPlayer, "ServerCallback_AnnounceLastSurvivor", player.GetEncodedEHandle() )
 
-	if ((GameTime_TimeLeftSeconds() > 45) && !file.evacCame && (playerCount > 7)) {
-		if ( SpawnPoints_GetTitan().len() > 0) {
+	if ( ( GameTime_TimeLeftSeconds() > 45 ) && !file.evacCame && ( playerCount > 7 ) )
+	{
+		if ( SpawnPoints_GetTitan().len() > 0 )
+		{
 			thread CreateTitanForPlayerAndHotdrop( player, GetTitanReplacementPoint( player, false ) )
-		} else {
+		}
+		else
+		{
 			player.SetMaxHealth( 125 )
 		}
 		SetServerVar( "gameEndTime", Time() + 45.0 )
 		PlayMusicToAll( eMusicPieceID.LEVEL_LAST_MINUTE )
 	}
 
-	if ( !file.evacCame ) {
-		thread HandleHighlight( player, <1,0,0>, true )
+	if ( !file.evacCame )
+	{
+		thread HandleHighlight( player, < 1, 0, 0 >, true )
 		StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 ) // sonar is better here so the player themselves see the SONAR DETECTED warning.
 	}
 
 	file.hasHadLastInfection = true
-
 	// if ( IsValid( GetEnt("npc_dropship") ) )
 	// 	return
-	
-	//float EVAC_WAIT_TIME, EVAC_ARRIVAL_TIME, EVAC_INITIAL_WAIT
-
-	//EVAC_INITIAL_WAIT = 0.0
-	//EVAC_ARRIVAL_TIME = GameTime_TimeLeftSeconds().tofloat() / 2 // 50%
-	//EVAC_WAIT_TIME = 10.0
-
-	//thread SurvivorEvac( INFECTION_TEAM_SURVIVOR, EVAC_INITIAL_WAIT, EVAC_ARRIVAL_TIME, EVAC_WAIT_TIME, CanPlayerBoardEvac, EvacEpilogueShouldLeaveEarly, EvacEpilogueCompleted )
+	// float EVAC_WAIT_TIME, EVAC_ARRIVAL_TIME, EVAC_INITIAL_WAIT
+	// EVAC_INITIAL_WAIT = 0.0
+	// EVAC_ARRIVAL_TIME = GameTime_TimeLeftSeconds().tofloat() / 2 // 50%
+	// EVAC_WAIT_TIME = 10.0
+	// thread SurvivorEvac( INFECTION_TEAM_SURVIVOR, EVAC_INITIAL_WAIT, EVAC_ARRIVAL_TIME,
+	// EVAC_WAIT_TIME, CanPlayerBoardEvac, EvacEpilogueShouldLeaveEarly, EvacEpilogueCompleted )
 }
 
 int function TimeoutCheckSurvivors()
@@ -1247,7 +1368,7 @@ int function TimeoutCheckSurvivors()
 	{
 		SetRespawnsEnabled( false )
 		SetKillcamsEnabled( false )
-		SetRoundWinningKillReplayAttacker(survivors[ 0 ])
+		SetRoundWinningKillReplayAttacker( survivors[0] )
 		AddTeamScore( INFECTION_TEAM_SURVIVOR, 100 ) // for kill replay to work lmao
 		return INFECTION_TEAM_SURVIVOR
 	}
@@ -1263,19 +1384,20 @@ void function OnWinnerDetermined()
 {
 	SetRespawnsEnabled( false )
 	SetKillcamsEnabled( false ) // apparently does not affect final killcam
-	if (RandomInt(10) == 0) {
-		Chat_ServerBroadcast("gg", true)
+	if ( RandomInt( 10 ) == 0 )
+	{
+		Chat_ServerBroadcast( "gg", true )
 	}
-	Chat_ServerBroadcast("Join us on discord at \x1b[36mdiscord.awesome.tf", true)
-	Chat_ServerBroadcast("Please let us know if you have any feedback.", true)
+	Chat_ServerBroadcast( "Join us on discord at \x1b[36mdiscord.awesome.tf", true )
+	Chat_ServerBroadcast( "Please let us know if you have any feedback.", true )
 }
 
 // ============================================================================================================================================
-// 
-// ███████ ██    ██  █████   ██████ 
-// ██      ██    ██ ██   ██ ██      
-// █████   ██    ██ ███████ ██      
-// ██       ██  ██  ██   ██ ██      
+//
+// ███████ ██    ██  █████   ██████
+// ██      ██    ██ ██   ██ ██
+// █████   ██    ██ ███████ ██
+// ██       ██  ██  ██   ██ ██
 // ███████   ████   ██   ██  ██████
 //
 // ============================================================================================================================================
@@ -1284,22 +1406,22 @@ void function EvacSpectatorFunc( entity player )
 {
 	svGlobal.levelEnt.EndSignal( "GameStateChanged" )
 	file.evacDropship.EndSignal( "OnDestroy" )
-	
+
 	entity cam = GetEnt( expect string( file.currentEvacNode.kv.target ) )
 	if ( !IsValid( cam ) )
 		return
-	
+
 	player.SetObserverModeStaticPosition( cam.GetOrigin() )
 	player.SetObserverModeStaticAngles( cam.GetAngles() )
 	player.StartObserverMode( OBS_MODE_STATIC )
-	
+
 	file.evacDropship.WaitSignal( "EvacOver" )
 }
 
 void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, float waitTime, bool functionref( entity, entity ) canBoardCallback, bool functionref( entity ) shouldLeaveEarlyCallback, void functionref( entity ) completionCallback, entity customEvacNode = null )
 {
-	if (GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len() == 1)
-		if (GetPlayerArray().len() != 1)
+	if ( GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len() == 1 )
+		if ( GetPlayerArray().len() != 1 )
 			return
 	file.evacCame = true
 	svGlobal.levelEnt.Signal( "ResetEvac" )
@@ -1307,8 +1429,8 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	svGlobal.levelEnt.EndSignal( "ResetEvac" )
 
 	EvacShipSetting evacShip = GetEvacShipSettingByTeam( evacTeam )
-	
-	wait initialWait 
+
+	wait initialWait
 
 	// setup evac nodes if not manually registered
 	if ( file.evacNodes.len() == 0 && !IsValid( customEvacNode ) )
@@ -1318,11 +1440,11 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 			entity newNode = GetEnt( "escape_node" + i )
 			if ( !IsValid( newNode ) )
 				break
-			
+
 			file.evacNodes.append( newNode )
 		}
 	}
-	
+
 	// setup space node if not manually registered
 	if ( !IsValid( file.spaceNode ) )
 		file.spaceNode = GetEnt( "spaceNode" )
@@ -1330,7 +1452,7 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	entity evacNode = customEvacNode
 	if ( !IsValid( customEvacNode ) )
 		evacNode = file.evacNodes.getrandom()
-		
+
 	file.currentEvacNode = evacNode
 
 	// setup client evac position
@@ -1338,13 +1460,13 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	file.evacIcon.SetOrigin( evacNode.GetOrigin() )
 	file.evacIcon.kv.spawnFlags = SF_INFOTARGET_ALWAYS_TRANSMIT_TO_CLIENT
 	DispatchSpawn( file.evacIcon )
-		// if time remaining is 25% of original time limit
-		//GameMode_GetTimeLimit( GameRules_GetGameMode() ) * 60 ) / 100 * 25
+	// if time remaining is 25% of original time limit
+	// GameMode_GetTimeLimit( GameRules_GetGameMode() ) * 60 ) / 100 * 25
 	file.evacIcon.DisableHibernation()
 
 	int index = GetParticleSystemIndex( FX_EVAC_MARKER )
 
-	entity effectFriendly = StartParticleEffectInWorld_ReturnEntity( index, evacNode.GetOrigin(), < 0,0,0 > )
+	entity effectFriendly = StartParticleEffectInWorld_ReturnEntity( index, evacNode.GetOrigin(), < 0, 0, 0 > )
 	SetTeam( effectFriendly, evacTeam )
 	effectFriendly.kv.VisibilityFlags = ENTITY_VISIBLE_TO_FRIENDLY
 
@@ -1352,7 +1474,7 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	// eta until arrive
 	SetTeamActiveObjective( evacTeam, "EG_DropshipExtract", Time() + arrivalTime, file.evacIcon )
 	SetTeamActiveObjective( GetOtherTeam( evacTeam ), "EG_StopExtract", Time() + arrivalTime, file.evacIcon )
-	
+
 	// would've liked to use cd_dropship_rescue_side_start length here, but can't since this is done before dropship spawn, can't
 	wait arrivalTime - 4.33333
 
@@ -1361,13 +1483,13 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	thread DropShipTempHide( dropship ) // prevent showing model and health bar on spawn
 
 	// nessie rework
-	//dropship.SetModel( $"models/vehicle/crow_dropship/crow_dropship_hero.mdl" ) 
-	//dropship.SetValueForModelKey( $"models/vehicle/crow_dropship/crow_dropship_hero.mdl" )
+	// dropship.SetModel( $"models/vehicle/crow_dropship/crow_dropship_hero.mdl" )
+	// dropship.SetValueForModelKey( $"models/vehicle/crow_dropship/crow_dropship_hero.mdl" )
 	dropship.SetModel( evacShip.shipModel )
 	dropship.SetValueForModelKey( evacShip.shipModel )
 	// rework end
 	int playerCount = GetPlayerArray().len()
-	int evac_ship_health = (playerCount + 1) * 3125
+	int evac_ship_health = ( playerCount + 1 ) * 3125
 	dropship.SetMaxHealth( evac_ship_health )
 	dropship.SetHealth( evac_ship_health )
 	dropship.SetShieldHealth( EVAC_SHIP_SHIELDS )
@@ -1375,39 +1497,41 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	DispatchSpawn( dropship )
 	// reduce nuclear core's damage
 	AddEntityCallback_OnDamaged( dropship, EvacDropshipDamaged )
-    AddEntityCallback_OnKilled( dropship, EvacDropshipKilled )
-	
+	AddEntityCallback_OnKilled( dropship, EvacDropshipKilled )
+
 	dropship.s.evacSlots <- [ null, null, null, null, null, null, null, null ]
 	file.evacDropship = dropship
-	
+
 	dropship.EndSignal( "OnDestroy" )
-	OnThreadEnd( function() : ( evacTeam, completionCallback, dropship ) 
-	{
-		if ( "evacTrigger" in dropship.s )
-			dropship.s.evacTrigger.Destroy()
-		
-		// this should be for both teams
-		if( !IsValid( dropship ) )
+	OnThreadEnd(
+		function() : ( evacTeam, completionCallback, dropship )
 		{
-			SetTeamActiveObjective( evacTeam, "EG_DropshipExtractDropshipDestroyed" )
-			SetTeamActiveObjective( GetOtherTeam( evacTeam ), "EG_DropshipExtractDropshipDestroyed" )
-			
-			foreach( entity player in GetPlayerArrayOfTeam( evacTeam ) )
-				SetPlayerChallengeEvacState( player, 0 )
+			if ( "evacTrigger" in dropship.s )
+				dropship.s.evacTrigger.Destroy()
+
+			// this should be for both teams
+			if ( !IsValid( dropship ) )
+			{
+				SetTeamActiveObjective( evacTeam, "EG_DropshipExtractDropshipDestroyed" )
+				SetTeamActiveObjective( GetOtherTeam( evacTeam ), "EG_DropshipExtractDropshipDestroyed" )
+
+				foreach ( entity player in GetPlayerArrayOfTeam( evacTeam ) )
+					SetPlayerChallengeEvacState( player, 0 )
+			}
+
+			foreach ( entity player in dropship.s.evacSlots )
+			{
+				if ( !IsValid( player ) )
+					continue
+
+				player.ClearInvulnerable()
+			}
+
+			// this is called whether dropship is destroyed or evac finishes, callback can handle this itself
+			thread completionCallback( dropship )
 		}
-	
-		foreach ( entity player in dropship.s.evacSlots )
-		{
-			if ( !IsValid( player ) )
-				continue
-			
-			player.ClearInvulnerable()
-		}
-		
-		// this is called whether dropship is destroyed or evac finishes, callback can handle this itself
-		thread completionCallback( dropship )
-	})
-	
+	)
+
 	// flyin
 	Spectator_SetCustomSpectatorFunc( EvacSpectatorFunc )
 	thread PlayAnim( dropship, "cd_dropship_rescue_side_start", evacNode )
@@ -1415,29 +1539,29 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	// fly in sound and effect
 	EmitSoundOnEntity( dropship, evacShip.flyinSound )
 	thread WarpInEffectEvacShip( dropship )
-	
+
 	// calculate time until idle start
 	float sequenceDuration = dropship.GetSequenceDuration( "cd_dropship_rescue_side_start" )
 	float cycleFrac = dropship.GetScriptedAnimEventCycleFrac( "cd_dropship_rescue_side_start", "ReadyToLoad" )
 	wait sequenceDuration * cycleFrac
-	
+
 	thread PlayAnim( dropship, "cd_dropship_rescue_side_idle", evacNode )
 
 	// hover sound
 	EmitSoundOnEntity( dropship, evacShip.hoverSound )
-	
+
 	// eta until leave
 	SetTeamActiveObjective( evacTeam, "EG_DropshipExtract2", Time() + waitTime, file.evacIcon )
-	SetTeamActiveObjective( GetOtherTeam( evacTeam ), "EG_StopExtract2", Time() + waitTime, file.evacIcon )	
+	SetTeamActiveObjective( GetOtherTeam( evacTeam ), "EG_StopExtract2", Time() + waitTime, file.evacIcon )
 
 	// dialogue
 	PlayFactionDialogueToTeam( "mp_evacGo", evacTeam )
 	PlayFactionDialogueToTeam( "mp_evacStop", GetOtherTeam( evacTeam ) )
 
 	// stop evac beam
-	if( IsValid( effectFriendly ) )
+	if ( IsValid( effectFriendly ) )
 		EffectStop( effectFriendly )
-	
+
 	// setup evac trigger
 	entity trigger = CreateEntity( "trigger_cylinder" )
 	// increased from default
@@ -1448,70 +1572,75 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	trigger.SetParent( dropship, "ORIGIN" )
 	DispatchSpawn( trigger )
 	// have to do this inline since we capture the completionCallback
-	trigger.SetEnterCallback( void function( entity trigger, entity player ) : ( canBoardCallback, dropship ) 
-	{ 	
-		if ( !player.IsPlayer() || !IsAlive( player ) || player.IsTitan() || player.ContextAction_IsBusy() || !canBoardCallback( dropship, player ) || PlayerInDropship( player, dropship ) )
-			return
-		
-		thread AddPlayerToEvacDropship( dropship, player )
-	})
-	
+	trigger.SetEnterCallback(
+		void function( entity trigger, entity player ) : ( canBoardCallback, dropship )
+		{
+			if (
+				!player.IsPlayer() || !IsAlive( player ) || player.IsTitan() || player.ContextAction_IsBusy() || !canBoardCallback( dropship, player ) ||
+				PlayerInDropship( player, dropship )
+			)
+				return
+
+			thread AddPlayerToEvacDropship( dropship, player )
+		}
+	)
+
 	dropship.s.evacTrigger <- trigger
-		
+
 	float waitStartTime = Time()
 	while ( Time() - waitStartTime < waitTime )
 	{
 		if ( shouldLeaveEarlyCallback( dropship ) )
 			break
-			
+
 		WaitFrame()
 	}
 
 	// fly out sound
 	StopSoundOnEntity( dropship, evacShip.hoverSound )
 	EmitSoundOnEntity( dropship, evacShip.flyoutSound )
-	
+
 	// holster all weapons
 	foreach ( entity player in dropship.s.evacSlots )
 		if ( IsValid( player ) )
 			player.HolsterWeapon()
-	
+
 	// fly away
 	dropship.Signal( "EvacShipLeaves" )
 	thread PlayAnim( dropship, "cd_dropship_rescue_side_end", evacNode )
-	
+
 	SetTeamActiveObjective( evacTeam, "EG_DropshipExtractDropshipFlyingAway" )
 	SetTeamActiveObjective( GetOtherTeam( evacTeam ), "EG_StopExtractDropshipFlyingAway" )
-	
-	EmitSoundOnEntity(dropship, "crow_evac_warpflyout_6ch_v2_03")
+
+	EmitSoundOnEntity( dropship, "crow_evac_warpflyout_6ch_v2_03" )
 	wait dropship.GetSequenceDuration( "cd_dropship_rescue_side_end" ) - WARPINFXTIME
-	
+
 	foreach ( entity player in dropship.s.evacSlots )
 		if ( IsValid( player ) )
 			Remote_CallFunction_NonReplay( player, "ServerCallback_PlayScreenFXWarpJump" )
-	
+
 	wait WARPINFXTIME
 
 	dropship.kv.VisibilityFlags = 0 // prevent jetpack trails being like "dive" into ground
 	WaitFrame() // better wait because we are server
-	if( !IsValid( dropship ) )
+	if ( !IsValid( dropship ) )
 		return
 	thread __WarpOutEffectShared( dropship )
-	
-	// go to space 
-	
+
+	// go to space
+
 	// hardcoded angles here are a hack, spacenode position doesn't face the planet in the skybox, for some reason
 	// nvm removing for now
-	//file.spaceNode.SetAngles( < 30, -75, 20 > )
-	
+	// file.spaceNode.SetAngles( < 30, -75, 20 > )
+
 	dropship.SetOrigin( file.spaceNode.GetOrigin() )
 	dropship.SetAngles( file.spaceNode.GetAngles() )
 	dropship.SetInvulnerable()
 	dropship.Signal( "EvacOver" )
 	thread PlayAnim( dropship, "ds_space_flyby_dropshipA", file.spaceNode )
-	
-	foreach( entity player in GetPlayerArray() )
-	{	
+
+	foreach ( entity player in GetPlayerArray() )
+	{
 		// evac-ed players only beyond this point
 		if ( !PlayerInDropship( player, dropship ) )
 		{
@@ -1520,20 +1649,20 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 				SetPlayerActiveObjective( player, "EG_DropshipExtractFailedEscape" )
 				SetPlayerChallengeEvacState( player, 2 )
 			}
-				
+
 			continue
 		}
-		
+
 		SetPlayerActiveObjective( player, "EG_DropshipExtractSuccessfulEscape" )
 
 		dropship.kv.VisibilityFlags = ENTITY_VISIBLE_TO_FRIENDLY
-		
+
 		// skybox
 		player.SetSkyCamera( GetEnt( SKYBOXSPACE ) )
 		Remote_CallFunction_NonReplay( player, "ServerCallback_DisableHudForEvac" )
 		Remote_CallFunction_NonReplay( player, "ServerCallback_SetClassicSkyScale", dropship.GetEncodedEHandle(), 0.7 )
 		Remote_CallFunction_NonReplay( player, "ServerCallback_SetMapSettings", 4.0, false, 0.4, 0.125 )
-		SetPlayerChallengeEvacState( player, 1 )		
+		SetPlayerChallengeEvacState( player, 1 )
 		// display player [Evacuated] in killfeed
 		foreach ( entity otherPlayer in GetPlayerArray() )
 			Remote_CallFunction_NonReplay( otherPlayer, "ServerCallback_EvacObit", player.GetEncodedEHandle() )
@@ -1548,13 +1677,13 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	{
 		if ( !PlayerInDropship( player, dropship ) )
 			continue
-		
+
 		evacCount++
 	}
 
 	bool allEvac = evacCount == evacingPlayers.len()
 
-	foreach(entity player in evacingPlayers)
+	foreach ( entity player in evacingPlayers )
 	{
 		if ( !PlayerInDropship( player, dropship ) )
 			continue
@@ -1574,20 +1703,20 @@ void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, 
 	}
 }
 
-void function AddPlayerToEvacDropship( entity dropship, entity player ) 
+void function AddPlayerToEvacDropship( entity dropship, entity player )
 {
 	int slot = RandomInt( dropship.s.evacSlots.len() )
 	for ( int i = 0; i < dropship.s.evacSlots.len(); i++ )
 	{
-		if ( !IsValid( dropship.s.evacSlots[ slot ] ) )
+		if ( !IsValid( dropship.s.evacSlots[slot] ) )
 		{
-			dropship.s.evacSlots[ slot ] = player
+			dropship.s.evacSlots[slot] = player
 			break
 		}
-	
+
 		slot = ( slot + 1 ) % expect int( dropship.s.evacSlots.len() )
 	}
-	
+
 	// no slots available
 	if ( !PlayerInDropship( player, dropship ) )
 		return
@@ -1603,25 +1732,25 @@ void function AddPlayerToEvacDropship( entity dropship, entity player )
 	player.ForceStand()
 
 	FirstPersonSequenceStruct fp
-	//fp.firstPersonAnim = EVAC_EMBARK_ANIMS_1P[ slot ]
-	fp.thirdPersonAnim = EVAC_EMBARK_ANIMS_3P[ slot ]
+	// fp.firstPersonAnim = EVAC_EMBARK_ANIMS_1P[ slot ]
+	fp.thirdPersonAnim = EVAC_EMBARK_ANIMS_3P[slot]
 	fp.attachment = "RESCUE"
 	fp.teleport = true
 	fp.thirdPersonCameraAttachments = [ "VDU" ] // this seems wrong, firstperson anim has better angles, but no head
-	
+
 	EmitSoundOnEntityOnlyToPlayer( player, player, SHIFTER_START_SOUND_3P )
 	// should play SHIFTER_START_SOUND_1P when they actually arrive in the ship i think, unsure how this is supposed to be done
 	PlayPhaseShiftDisappearFX( player )
 	FirstPersonSequence( fp, player, dropship )
-	
+
 	FirstPersonSequenceStruct idleFp
-	idleFp.firstPersonAnimIdle = EVAC_IDLE_ANIMS_1P[ slot ]
-	idleFp.thirdPersonAnimIdle = EVAC_IDLE_ANIMS_3P[ slot ]
+	idleFp.firstPersonAnimIdle = EVAC_IDLE_ANIMS_1P[slot]
+	idleFp.thirdPersonAnimIdle = EVAC_IDLE_ANIMS_3P[slot]
 	idleFp.attachment = "RESCUE"
 	idleFp.teleport = true
 	idleFp.hideProxy = true
-	idleFp.viewConeFunction = ViewConeWide  
-		
+	idleFp.viewConeFunction = ViewConeWide
+
 	thread FirstPersonSequence( idleFp, player, dropship )
 	ViewConeWide( player ) // gotta do this after for some reason, adding it to idleFp does not work for some reason
 }
@@ -1632,7 +1761,7 @@ bool function PlayerInDropship( entity player, entity dropship )
 	foreach ( entity dropshipPlayer in dropship.s.evacSlots )
 		if ( dropshipPlayer == player )
 			return true
-			
+
 	return false
 }
 
@@ -1645,7 +1774,11 @@ void function EvacDropshipKilled( entity dropship, var damageInfo )
 		if ( IsValid( player ) && IsAlive( player ) )
 		{
 			player.ClearParent()
-			player.Die( DamageInfo_GetAttacker( damageInfo ), DamageInfo_GetWeapon( damageInfo ), { damageSourceId = eDamageSourceId.evac_dropship_explosion, scriptType = DF_GIB } )
+			player.Die(
+				DamageInfo_GetAttacker( damageInfo ),
+				DamageInfo_GetWeapon( damageInfo ),
+				{ damageSourceId = eDamageSourceId.evac_dropship_explosion, scriptType = DF_GIB }
+			)
 		}
 	}
 }
@@ -1655,12 +1788,12 @@ bool function CanPlayerBoardEvac( entity dropship, entity player )
 	// can't board a dropship on a different team
 	if ( dropship.GetTeam() != player.GetTeam() )
 		return false
-	
+
 	// check if there are any free slots on the dropship, if there are then they can board
 	foreach ( entity player in dropship.s.evacSlots )
 		if ( !IsValid( player ) )
 			return true
-	
+
 	// no empty slots
 	return false
 }
@@ -1678,14 +1811,16 @@ bool function EvacEpilogueShouldLeaveEarly( entity dropship )
 void function EvacEpilogueCompleted( entity dropship )
 {
 	wait 3.0
-	
-	if( !IsValid(dropship) && !IsAlive(dropship) )
+
+	if ( !IsValid( dropship ) && !IsAlive( dropship ) )
 		return
 
 	array<entity> survivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR )
 	int numEvacing = 0
-	foreach ( entity player in survivors) {
-		if ( !PlayerInDropship( player, dropship ) ) {
+	foreach ( entity player in survivors )
+	{
+		if ( !PlayerInDropship( player, dropship ) )
+		{
 			InfectPlayer( player, player )
 			RespawnInfected( player )
 		}
@@ -1696,9 +1831,9 @@ void function EvacEpilogueCompleted( entity dropship )
 			numEvacing++
 
 	if ( numEvacing != 0 )
-		SetWinner(INFECTION_TEAM_SURVIVOR)
+		SetWinner( INFECTION_TEAM_SURVIVOR )
 	else
-		SetWinner(INFECTION_TEAM_INFECTED)
+		SetWinner( INFECTION_TEAM_INFECTED )
 
 	foreach ( entity player in GetPlayerArray() )
 		ScreenFadeToBlackForever( player, 2.0 )
@@ -1716,24 +1851,24 @@ void function CheckIfAnyPlayerLeft( int evacTeam )
 			SetTeamActiveObjective( evacTeam, "EG_DropshipExtractEvacPlayersKilled" )
 			SetTeamActiveObjective( GetOtherTeam( evacTeam ), "EG_StopExtractEvacPlayersKilled" )
 			thread EvacEpilogueCompleted( null )
-            // score for killing the entire evacing team
+			// score for killing the entire evacing team
 			foreach ( entity player in GetPlayerArray() )
 			{
 				if ( player.GetTeam() == evacTeam )
 					continue
 
-				AddPlayerScore( player, "TeamBonusKilledAll")
+				AddPlayerScore( player, "TeamBonusKilledAll" )
 			}
 		}
 	)
-	while( true )
+	while ( true )
 	{
-		if( GetPlayerArrayOfTeam_Alive( evacTeam ).len() == 0 )
+		if ( GetPlayerArrayOfTeam_Alive( evacTeam ).len() == 0 )
 			break
-		if( GetGameState() == eGameState.Postmatch )
+		if ( GetGameState() == eGameState.Postmatch )
 			return
 		WaitFrame()
-	}	
+	}
 }
 
 void function DropShipTempHide( entity dropship )
@@ -1741,7 +1876,7 @@ void function DropShipTempHide( entity dropship )
 	dropship.kv.VisibilityFlags = 0 // or it will still shows the jetpack fxs
 	HideName( dropship )
 	wait 0.46
-	if( IsValid( dropship ) )
+	if ( IsValid( dropship ) )
 	{
 		dropship.kv.VisibilityFlags = ENTITY_VISIBLE_TO_EVERYONE
 		ShowName( dropship )
@@ -1751,14 +1886,14 @@ void function DropShipTempHide( entity dropship )
 EvacShipSetting function GetEvacShipSettingByTeam( int team )
 {
 	EvacShipSetting tempSetting
-	if( team == TEAM_IMC )
+	if ( team == TEAM_IMC )
 	{
 		tempSetting.shipModel = $"models/vehicle/goblin_dropship/goblin_dropship_hero.mdl"
 		tempSetting.flyinSound = "Goblin_IMC_Evac_Flyin"
 		tempSetting.hoverSound = "Goblin_IMC_Evac_Hover"
 		tempSetting.flyoutSound = "Goblin_IMC_Evac_FlyOut"
 	}
-	if( team == TEAM_MILITIA )
+	if ( team == TEAM_MILITIA )
 	{
 		tempSetting.shipModel = $"models/vehicle/crow_dropship/crow_dropship_hero.mdl"
 		tempSetting.flyinSound = "Crow_MCOR_Evac_Flyin"
@@ -1771,13 +1906,13 @@ EvacShipSetting function GetEvacShipSettingByTeam( int team )
 void function EvacDropshipDamaged( entity evacShip, var damageInfo )
 {
 	int damageSourceID = DamageInfo_GetDamageSourceIdentifier( damageInfo )
-	if( damageSourceID == damagedef_nuclear_core )
-		DamageInfo_SetDamage( damageInfo, DamageInfo_GetDamage( damageInfo )/3 )
+	if ( damageSourceID == damagedef_nuclear_core )
+		DamageInfo_SetDamage( damageInfo, DamageInfo_GetDamage( damageInfo ) / 3 )
 }
 
 void function WarpInEffectEvacShip( entity dropship )
 {
-    dropship.EndSignal( "OnDestroy" )
+	dropship.EndSignal( "OnDestroy" )
 	float sfxWait = 0.1
 	float totalTime = WARPINFXTIME
 	float preWaitTime = 0.16 // give it some time so it's actually playing anim, and we can get it's "origin" attatch
@@ -1799,24 +1934,24 @@ void function WarpInEffectEvacShip( entity dropship )
 	wait totalTime - sfxWait
 }
 
-//======================================================================================================
+// ======================================================================================================
 //
-// ██████   █████  ███    ██ ███████ ██      ███████ 
-// ██   ██ ██   ██ ████   ██ ██      ██      ██      
-// ██████  ███████ ██ ██  ██ █████   ██      ███████ 
-// ██      ██   ██ ██  ██ ██ ██      ██           ██ 
+// ██████   █████  ███    ██ ███████ ██      ███████
+// ██   ██ ██   ██ ████   ██ ██      ██      ██
+// ██████  ███████ ██ ██  ██ █████   ██      ███████
+// ██      ██   ██ ██  ██ ██ ██      ██           ██
 // ██      ██   ██ ██   ████ ███████ ███████ ███████
 //
-//======================================================================================================
+// ======================================================================================================
 
 void function InfectionAddPanelSpawns( array<vector> positionsAndOrigins )
 {
 	for ( int i = 0; i < positionsAndOrigins.len(); i += 2 )
 	{
 		Point spawnPoint
-		spawnPoint.origin = positionsAndOrigins[ i ]
-		spawnPoint.angles = positionsAndOrigins[ i + 1 ]
-		
+		spawnPoint.origin = positionsAndOrigins[i]
+		spawnPoint.angles = positionsAndOrigins[i + 1]
+
 		file.panelSpawns.append( spawnPoint )
 	}
 }
@@ -1826,23 +1961,23 @@ void function SpawnPanelsForLevel()
 	int panelId
 	foreach ( Point panelSpawn in file.panelSpawns )
 	{
-		entity panel = CreatePanel( panelSpawn.origin, panelSpawn.angles )	
+		entity panel = CreatePanel( panelSpawn.origin, panelSpawn.angles )
 		panel.s.panelId <- panelId++
 		SetTeam( panel, INFECTION_TEAM_INFECTED )
 	}
 }
 
-void function InfectionAddProp( asset model, array<vector> positionsAndOrigins)
+void function InfectionAddProp( asset model, array<vector> positionsAndOrigins )
 {
 	for ( int i = 0; i < positionsAndOrigins.len(); i += 2 )
 	{
 		entity prop = CreateEntity( "prop_control_panel" )
 		prop.SetValueForModelKey( model )
-		prop.SetOrigin( positionsAndOrigins[ i ] )
-		prop.SetAngles( positionsAndOrigins[ i + 1 ] )
+		prop.SetOrigin( positionsAndOrigins[i] )
+		prop.SetAngles( positionsAndOrigins[i + 1] )
 		prop.kv.solid = SOLID_VPHYSICS
 		DispatchSpawn( prop )
-	
+
 		prop.SetModel( model )
 	}
 }
@@ -1855,18 +1990,19 @@ entity function CreatePanel( vector origin, vector angles )
 	panel.SetAngles( angles )
 	panel.kv.solid = SOLID_VPHYSICS
 	DispatchSpawn( panel )
-	
+
 	panel.SetModel( $"models/communication/terminal_usable_imc_01.mdl" )
 	panel.s.scriptedPanel <- true
-	
-	// HACK: need to use a custom useFunction here as control panel exposes no way to get the player's position before hacking it, or a way to run code before the hacking animation actually starts
+
+	// HACK: need to use a custom useFunction here as control panel exposes no way to get the player's
+	// position before hacking it, or a way to run code before the hacking animation actually starts
 	panel.s.startOrigin <- < 0, 0, 0 >
 	panel.useFunction = InfectionControlPanelCanUse
-	
+
 	SetControlPanelUseFunc( panel, InfectionOnPanelHacked )
-	
+
 	Highlight_SetNeutralHighlight( panel, "sp_enemy_pilot" )
-	
+
 	return panel
 }
 
@@ -1877,12 +2013,17 @@ function InfectionControlPanelCanUse( playerUser, controlPanel )
 	expect entity( controlPanel )
 	controlPanel.s.startOrigin <- playerUser.GetOrigin()
 
-	foreach ( entity weapon in playerUser.GetOffhandWeapons() ) {
-		if ( weapon.GetWeaponClassName() == "mp_ability_burncardweapon" || weapon.GetWeaponClassName() == "mp_ability_turretweapon" || weapon.GetWeaponClassName() == "mp_weapon_frag_drone" ) {
+	foreach ( entity weapon in playerUser.GetOffhandWeapons() )
+	{
+		if (
+			weapon.GetWeaponClassName() == "mp_ability_burncardweapon" || weapon.GetWeaponClassName() == "mp_ability_turretweapon" ||
+			weapon.GetWeaponClassName() == "mp_weapon_frag_drone"
+		)
+		{
 			return false
 		}
 	}
-		
+
 	return ControlPanel_CanUseFunction( playerUser, controlPanel )
 }
 
@@ -1891,29 +2032,38 @@ function InfectionOnPanelHacked( panel, player )
 {
 	expect entity( panel )
 	expect entity( player )
-		
+
 	print( panel + " was hacked by " + player )
-	
+
 	player.SetPlayerGameStat( PGS_ASSAULT_SCORE, player.GetPlayerGameStat( PGS_ASSAULT_SCORE ) + 1 )
 
 	array<entity> dropPodSpawns = GetEntArrayByClass_Expensive( "info_spawnpoint_droppod_start" )
-	if (dropPodSpawns.len() != 0) {
+	if ( dropPodSpawns.len() != 0 )
+	{
 		entity closestNode = GetClosest( dropPodSpawns, player.GetOrigin() )
-		if (RandomInt(10) == 0) {
-			if (player.GetTeam() == INFECTION_TEAM_SURVIVOR) {
-				thread Infection_SpawnDropPodAlly( closestNode.GetOrigin(), <0, 0, 0>, INFECTION_TEAM_SURVIVOR, "npc_spectre", SquadFollow, 0, player )
-			} else {
-				thread Infection_SpawnDropPodAlly( closestNode.GetOrigin(), <0, 0, 0>, INFECTION_TEAM_INFECTED, "npc_prowler", SquadFollow, 0, player )
+		if ( RandomInt( 10 ) == 0 )
+		{
+			if ( player.GetTeam() == INFECTION_TEAM_SURVIVOR )
+			{
+				thread Infection_SpawnDropPodAlly( closestNode.GetOrigin(), < 0, 0, 0 >, INFECTION_TEAM_SURVIVOR, "npc_spectre", SquadFollow, 0, player )
+			}
+			else
+			{
+				thread Infection_SpawnDropPodAlly( closestNode.GetOrigin(), < 0, 0, 0 >, INFECTION_TEAM_INFECTED, "npc_prowler", SquadFollow, 0, player )
 			}
 		}
-		else {
-			if (player.GetTeam() == INFECTION_TEAM_SURVIVOR) {
+		else
+		{
+			if ( player.GetTeam() == INFECTION_TEAM_SURVIVOR )
+			{
 				BurnMeter_GiveRewardDirect( player, file.highburnreward.getrandom() )
 			}
 		}
 	}
-	else {
-		if (player.GetTeam() == INFECTION_TEAM_SURVIVOR) {
+	else
+	{
+		if ( player.GetTeam() == INFECTION_TEAM_SURVIVOR )
+		{
 			BurnMeter_GiveRewardDirect( player, file.highburnreward.getrandom() )
 		}
 	}
@@ -1921,8 +2071,6 @@ function InfectionOnPanelHacked( panel, player )
 	SetTeam( panel, TEAM_UNASSIGNED )
 
 	thread InfectionOnPanelHacked_Delayed( panel, player )
-
-
 	// TODO: figure out if we want to do this clientsided or serversided (basically is MAD good enough/going to stay)
 	// foreach ( entity otherPlayer in GetPlayerArray() )
 	// 	Remote_CallFunction_NonReplay( otherPlayer, "ServerCallback_InfectionPanelHacked", panel.GetEncodedEHandle(), panel.s.panelId, player.GetEncodedEHandle() )
@@ -1933,7 +2081,7 @@ function InfectionOnPanelHacked_Delayed( panel, player )
 	wait 30
 	expect entity( panel )
 	expect entity( player )
-		
+
 	SetTeam( panel, INFECTION_TEAM_SURVIVOR )
 	EmitSoundOnEntity( panel, "Coop_AmmoBox_Close" ) // might change, it's a little quiet
 }
@@ -1951,7 +2099,7 @@ void function ShouldPanelsBeUsable()
 {
 	int numInfected = GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len()
 	int numSurvivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len()
-	
+
 	foreach ( entity panel in GetAllControlPanels() )
 	{
 		if ( numInfected >= numSurvivors )
@@ -1975,26 +2123,28 @@ void function SquadFollow( array<entity> guys, entity owner )
 				guy.Minimap_AlwaysShow( 0, player )
 		}
 	}
-	
+
 	vector point = owner.GetOrigin()
-	
+
 	// Setup AI, first assault point
 	foreach ( guy in guys )
 	{
-        if ( IsAlive( guy ) ) {
-            guy.EnableNPCFlag( NPC_ALLOW_PATROL | NPC_ALLOW_INVESTIGATE | NPC_ALLOW_HAND_SIGNALS | NPC_ALLOW_FLEE | NPC_STAY_CLOSE_TO_SQUAD | NPC_CROUCH_COMBAT )
-            guy.AssaultPoint( point )
-            guy.AssaultSetGoalRadius( goalradius ) // 1600 is minimum for npc_stalker, works fine for others
-
-		//thread AITdm_CleanupBoredNPCThread( guy )
-        }
+		if ( IsAlive( guy ) )
+		{
+			guy.EnableNPCFlag( NPC_ALLOW_PATROL | NPC_ALLOW_INVESTIGATE | NPC_ALLOW_HAND_SIGNALS | NPC_ALLOW_FLEE | NPC_STAY_CLOSE_TO_SQUAD | NPC_CROUCH_COMBAT )
+			guy.AssaultPoint( point )
+			guy.AssaultSetGoalRadius( goalradius ) // 1600 is minimum for npc_stalker, works fine for others
+			// thread AITdm_CleanupBoredNPCThread( guy )
+		}
 	}
-	
+
 	// Every 5 - 15 secs change AssaultPoint
 	while ( true )
-	{	
-		if ( !IsValid( owner ) || owner.GetTeam() != team ) {
-			if ( GetPlayerArrayOfTeam( team ).len() == 0 ) {
+	{
+		if ( !IsValid( owner ) || owner.GetTeam() != team )
+		{
+			if ( GetPlayerArrayOfTeam( team ).len() == 0 )
+			{
 				return // round is over, no need to cleanup squad, maybe make them explode or smth if its a problem
 			}
 			owner = GetPlayerArrayOfTeam( team ).getrandom()
@@ -2012,61 +2162,58 @@ void function SquadFollow( array<entity> guys, entity owner )
 			if ( guys.len() == 0 )
 				return
 		}
-		
+
 		point = owner.GetOrigin()
 
-		if ( IsValid(file.queen) )
+		if ( IsValid( file.queen ) )
 			point = file.queen.GetOrigin()
-		
+
 		foreach ( guy in guys )
 		{
 			if ( IsAlive( guy ) )
 				guy.AssaultPoint( point )
 		}
 
-		wait RandomFloatRange(3.0, 5.0)
+		wait RandomFloatRange( 3.0, 5.0 )
 	}
 }
 
 void function RateSpawnpoints_Infection( int checkClass, array<entity> spawnpoints, int team, entity player )
-{	
+{
 	foreach ( entity spawnpoint in spawnpoints )
 	{
 		float currentRating = 0.0
-		
+
 		// Gather friendly scoring first to give positive rating first
 		currentRating += spawnpoint.NearbyAllyScore( team, "ai" )
 		currentRating += spawnpoint.NearbyAllyScore( team, "titan" )
 		currentRating += spawnpoint.NearbyAllyScore( team, "pilot" )
-		
+
 		// Enemies then subtract that rating ( Values already returns negative, so no need to apply subtract again )
 		currentRating += spawnpoint.NearbyEnemyScore( team, "ai" )
 		currentRating += spawnpoint.NearbyEnemyScore( team, "titan" )
 		currentRating += spawnpoint.NearbyEnemyScore( team, "pilot" )
-		
+
 		if ( spawnpoint == player.p.lastSpawnPoint ) // Reduce the rating of the spawn point used previously
 			currentRating += GetConVarFloat( "spawnpoint_last_spawn_rating" )
 
-		if ( IsValid( file.queen ) ) {
+		if ( IsValid( file.queen ) )
+		{
 			currentRating = 1.0 - ( Distance2D( spawnpoint.GetOrigin(), file.queen.GetOrigin() ) / MAP_EXTENTS )
 		}
-		
+
 		spawnpoint.CalculateRating( checkClass, team, currentRating, currentRating * 0.25 )
 	}
 	// foreach ( entity spawnpoint in spawnpoints )
-    // {
-    //     spawnpoint.NearbyEnemyScore( team, "ai" )
-
-    //     if( !IsValid( file.queen ) )
-    //         break
-        
-    //     float currentRating = 1.0 - ( Distance2D( spawnpoint.GetOrigin(), file.queen.GetOrigin() ) / MAP_EXTENTS )
-
-    //     // if ( spawnpoint == player.p.lastSpawnPoint ) // Reduce the rating of the spawn point used previously
-    //     //     currentRating += GetConVarFloat( "spawnpoint_last_spawn_rating" )
-
-    //     spawnpoint.CalculateRating( checkClass, team, currentRating, currentRating * 0.25 )
-    // }
+	// {
+	//     spawnpoint.NearbyEnemyScore( team, "ai" )
+	//     if( !IsValid( file.queen ) )
+	//         break
+	//     float currentRating = 1.0 - ( Distance2D( spawnpoint.GetOrigin(), file.queen.GetOrigin() ) / MAP_EXTENTS )
+	//     // if ( spawnpoint == player.p.lastSpawnPoint ) // Reduce the rating of the spawn point used previously
+	//     //     currentRating += GetConVarFloat( "spawnpoint_last_spawn_rating" )
+	//     spawnpoint.CalculateRating( checkClass, team, currentRating, currentRating * 0.25 )
+	// }
 }
 
 // Yoinked from EladNLG's rougelike mod
