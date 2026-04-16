@@ -513,13 +513,13 @@ void function TripleJumpThread( entity player )
 		{
 			if ( wasOnGround )
 			{
-				// just left the ground — first jump
+				// just left the ground, first jump
 				wasOnGround = false
 				gaveExtraJump = false
 			}
-			else if ( !gaveExtraJump && ( zVel - lastZVel ) > 200.0 )
+			else if ( !gaveExtraJump && ( zVel - lastZVel ) > 150.0 )
 			{
-				// sudden upward velocity spike while airborne = double jump used; grant a third
+				// sudden upward velocity spike while airborne = double jump used, grant a third
 				player.TouchGround()
 				gaveExtraJump = true
 			}
@@ -1025,6 +1025,7 @@ void function RespawnInfected( entity player )
 		thread NSSendAnnouncementMessageToPlayer_Delayed( player, "YOU ARE THE HIVE QUEEN", "All infected spawn near you!", < 1, 1, 1 >, 1, 0 )
 		thread HandleHighlight( player, < 1, 0, 0 >, true )
 		file.queen = player
+		thread TripleJumpThread( player )
 		player.SetMaxHealth( 250 )
 		foreach ( entity survivorPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) )
 		{
