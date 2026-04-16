@@ -28,8 +28,8 @@ void function AiGameModes_Init()
 void function AiGameModes_SetNPCWeapons( string npcClass, array<string> weapons )
 {
 	if ( !( npcClass in file.npcWeaponsTable ) )
-		file.npcWeaponsTable[npcClass] <- []
-	file.npcWeaponsTable[npcClass] = weapons
+		file.npcWeaponsTable[ npcClass ] <- []
+	file.npcWeaponsTable[ npcClass ] = weapons
 }
 
 // ------------------------------------------------------
@@ -197,7 +197,7 @@ void function SetUpNPCWeapons( entity guy )
 
 	array<string> mainWeapons
 	if ( className in file.npcWeaponsTable )
-		mainWeapons = file.npcWeaponsTable[className]
+		mainWeapons = file.npcWeaponsTable[ className ]
 
 	if ( mainWeapons.len() == 0 ) // no valid weapons
 		return
@@ -208,7 +208,7 @@ void function SetUpNPCWeapons( entity guy )
 
 	if ( mainWeapons.len() > 0 )
 	{
-		string weaponName = mainWeapons[RandomInt( mainWeapons.len() )]
+		string weaponName = mainWeapons[ RandomInt( mainWeapons.len() ) ]
 		guy.GiveWeapon( weaponName )
 		guy.SetActiveWeaponByName( weaponName )
 	}

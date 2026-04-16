@@ -84,8 +84,8 @@ void function ShFactionDialogue_Init()
 		factionLeaderInfo.useWaveforms =
 			GetDataTableBool( factionLeaderDataTable, i, GetDataTableColumnByName( factionLeaderDataTable, FACTION_LEADERS_WAVEFORM_COLUMN_NAME ) )
 
-		factionLeaderData[persistenceRef] <- factionLeaderInfo
-		file.factionDisabledLines[persistenceRef] <- {}
+		factionLeaderData[ persistenceRef ] <- factionLeaderInfo
+		file.factionDisabledLines[ persistenceRef ] <- {}
 	}
 
 	var factionLeaderDropshipAnimsTable = GetDataTable( $"datatable/faction_leaders_dropship_anims.rpak" ) // Only lists the various dropship anims. Consider moving prop name/prop attachment etc to this table too. (Menu uses those props too, which is why we haven't moved it yet)
@@ -110,9 +110,9 @@ void function ShFactionDialogue_Init()
 		)
 
 		if ( !easterEgg )
-			factionLeaderData[persistenceRef].dropshipAnimList.append( animName )
+			factionLeaderData[ persistenceRef ].dropshipAnimList.append( animName )
 		else
-			factionLeaderData[persistenceRef].easterEggDropshipAnimList.append( animName )
+			factionLeaderData[ persistenceRef ].easterEggDropshipAnimList.append( animName )
 	}
 
 	if ( IsLobby() ) // Don't need to register conversations in lobby
@@ -136,19 +136,19 @@ void function ShFactionDialogue_Init()
 		array<string> factions = split( waveforms, " " )
 		foreach ( key, factionData in factionLeaderData )
 		{
-			file.factionDisabledLines[key][conversationName] <- factions.contains( key )
+			file.factionDisabledLines[ key ][ conversationName ] <- factions.contains( key )
 		}
 	}
 }
 
 bool function ConversationEnabledForFaction( string faction, string conversation )
 {
-	return !file.factionDisabledLines[faction][conversation]
+	return !file.factionDisabledLines[ faction ][ conversation ]
 }
 
 bool function FactionUsesWaveform( string faction )
 {
-	return factionLeaderData[faction].useWaveforms
+	return factionLeaderData[ faction ].useWaveforms
 }
 
 string function GetFactionChoice( entity player )
@@ -158,7 +158,7 @@ string function GetFactionChoice( entity player )
 
 string function GetFactionCharacterName( string faction )
 {
-	return factionLeaderData[faction].characterName
+	return factionLeaderData[ faction ].characterName
 }
 
 string function GetEnemyFaction( entity player )
@@ -247,6 +247,6 @@ int function ConvertPlayerFactionToIMCOrMilitiaTeam( entity player )
 				allFactions.append( faction )
 		}
 
-		player.SetPersistentVar( "enemyFaction", allFactions[RandomInt( allFactions.len() )] )
+		player.SetPersistentVar( "enemyFaction", allFactions[ RandomInt( allFactions.len() ) ] )
 	}
 #endif // SERVER
