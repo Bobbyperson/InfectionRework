@@ -1263,6 +1263,9 @@ void function CountdownToEvac()
 	{
 		if ( GameTime_TimeLeftSeconds() <= 60.0 )
 		{
+			if ( file.evacCame )
+				return
+
 			numSurvivors = GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len()
 
 			float EVAC_WAIT_TIME, EVAC_ARRIVAL_TIME, EVAC_INITIAL_WAIT
@@ -1485,9 +1488,6 @@ void function EvacSpectatorFunc( entity player )
 
 void function SurvivorEvac( int evacTeam, float initialWait, float arrivalTime, float waitTime, bool functionref( entity, entity ) canBoardCallback, bool functionref( entity ) shouldLeaveEarlyCallback, void functionref( entity ) completionCallback, entity customEvacNode = null )
 {
-	if ( GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len() == 1 )
-		if ( GetPlayerArray().len() != 1 )
-			return
 	file.evacCame = true
 	svGlobal.levelEnt.Signal( "ResetEvac" )
 	wait 0.1
