@@ -324,11 +324,16 @@ void function InfectionOnPlayerDisconnected( entity player )
 // gotta start documenting code even more since this file is getting bigger and bigger each time
 void function InfectionOnPlayerDisconnectedDelayed( entity player ) // 7 august 2023
 {
+	WaitFrame()
+	if ( GetPlayerArray().len() == 0 )
+	{
+		ServerCommand( "changelevel " + GetMapName() )
+		return
+	}
 	if ( !file.hasHadFirstInfection )
 	{
 		return
 	}
-	WaitFrame()
 	int infectedCount = GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len()
 	if ( infectedCount == 0 )
 	{
