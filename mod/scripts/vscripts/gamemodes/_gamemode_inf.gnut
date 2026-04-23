@@ -1239,8 +1239,7 @@ void function BoomerAttack( entity player )
 		0, // distanceFromAttacker
 		0, // explosionForce
 		DF_EXPLOSION | DF_GIB, // damage flags
-		eDamageSourceId
-			.funnyboomer // damage source id
+		eDamageSourceId.funnyboomer // damage source id
 	)
 }
 
