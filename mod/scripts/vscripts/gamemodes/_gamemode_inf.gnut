@@ -689,7 +689,13 @@ void function Mutators_Init()
 
 	srand( GetUnixTimestamp() )
 	if ( RandomFloat( 1.0 ) < GetConVarFloat( "inf_mutator_chance" ) )
-		file.mutator = file.mutators.keys().getrandom()
+	{
+		// typed tables don't have keys()
+		array<int> mutatorIds
+		foreach ( int mutator, MutatorData data in file.mutators )
+			mutatorIds.append( mutator )
+		file.mutator = mutatorIds.getrandom()
+	}
 }
 
 void function RegisterMutator( int mutator, string id, string name, string description )
