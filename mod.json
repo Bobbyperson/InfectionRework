@@ -3,5 +3,17 @@
 	"Description": "Made for Bobbyperson, please test this lol.",
 	"LoadPriority": 3,
 	"RequiredOnClient": false,
-	"Version": "1.0"
+	"Version": "1.0",
+	"ConVars": [
+		{
+			"Name": "inf_mutator_chance",
+			"DefaultValue": "0.33",
+			"HelpString": "Chance (0-1) that a match gets a random mutator"
+		},
+		{
+			"Name": "inf_mutator_force",
+			"DefaultValue": "",
+			"HelpString": "Force a mutator by id (low_gravity, volatile, rapid_mutation, bloodlust, adrenaline, moon_boots, sidearms, royal_court, heartbeat, turncoat), or 'none' to disable"
+		}
+	]
 }
