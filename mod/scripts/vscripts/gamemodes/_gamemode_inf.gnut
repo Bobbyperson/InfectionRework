@@ -65,6 +65,35 @@ const array<string> INFECTED_HINTS = [
 	"If you execute a survivor, you get their gun."
 ]
 
+enum eMutator
+{
+	NONE,
+	LOW_GRAVITY,
+	VOLATILE,
+	RAPID_MUTATION,
+	BLOODLUST,
+	ADRENALINE,
+	MOON_BOOTS,
+	SIDEARMS,
+	ROYAL_COURT,
+	HEARTBEAT,
+	TURNCOAT
+}
+
+const float HEARTBEAT_RADIUS = 200.0 // ~5 meters
+const float HEARTBEAT_TIME = 5.0 // how long a survivor can stay inside the radius before being revealed
+const float HEARTBEAT_REVEAL_TIME = 3.0
+
+struct MutatorData
+{
+	string id // used by inf_mutator_force
+	string name
+	string description
+}
+
+// pistols that count as a sidearm for Sidearms Only
+const array<string> MUTATOR_SIDEARMS = [ "mp_weapon_semipistol", "mp_weapon_autopistol", "mp_weapon_wingman" ]
+
 struct
 {
 	bool hasHadFirstInfection = false
@@ -90,6 +119,11 @@ struct
 	array<Point> panelSpawns
 
 	entity queen
+	entity lastQueen // royal court won't hand the crown straight back to the queen that just died
+
+	// mutators
+	table<int, MutatorData> mutators
+	int mutator = eMutator.NONE
 
 	array<string> lowburnreward = [ "burnmeter_ticks", "burnmeter_radar_jammer", "burnmeter_at_turret_weapon", "burnmeter_arc_trap", "burnmeter_phase_rewind" ]
 
@@ -153,6 +187,8 @@ void function GamemodeInfection_Init()
 
 	RegisterSignal( "ResetEvac" )
 	RegisterSignal( "BoostRefunded" ) // for arc trap to work
+
+	Mutators_Init()
 
 	string mapname = GetMapName()
 	if ( mapname != "mp_wargames" )
@@ -314,6 +350,8 @@ void function InfectionInitPlayer( entity player )
 	file.killstreak[ player ] <- 0
 	file.deathstreak[ player ] <- 0
 	file.hardmode[ player ] <- false
+	if ( file.mutator != eMutator.NONE && GetGameState() >= eGameState.Playing )
+		thread Mutators_NotifyLateJoiner( player )
 }
 
 void function InfectionOnPlayerDisconnected( entity player )
@@ -456,7 +494,7 @@ ClServer_MessageStruct function HardmodeChat( ClServer_MessageStruct message )
 		else if ( msg == "bark" )
 		{
 			entity player = message.player
-			if ( IsValid( player ) || IsAlive( player ) )
+			if ( !IsValid( player ) || !IsAlive( player ) )
 				return message
 			if ( player.GetTeam() == INFECTION_TEAM_INFECTED )
 			{
@@ -478,7 +516,8 @@ void function GetFuckedLoser( entity player )
 	StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 )*/
 
 	thread HighlightHardmode( player )
-	thread TripleJumpThread( player )
+	if ( file.mutator != eMutator.MOON_BOOTS ) // moon boots already gives every survivor a triple jump at round start
+		thread TripleJumpThread( player )
 
 	foreach ( entity weapon in player.GetMainWeapons() )
 		player.TakeWeaponNow( weapon.GetWeaponClassName() )
@@ -608,6 +647,242 @@ void function HighlightHardmode( entity player )
 // ===============================================================================
 //
 //
+// MUTATORS
+//
+//
+// ===============================================================================
+
+// Picked once per match. inf_mutator_chance controls how often a round has one,
+// inf_mutator_force picks a specific one by id ("none" disables them).
+void function Mutators_Init()
+{
+	RegisterMutator( eMutator.LOW_GRAVITY, "low_gravity", "Low Gravity", "Everyone jumps higher and falls slower." )
+	RegisterMutator( eMutator.VOLATILE, "volatile", "Volatile Strain", "Mutations are more common, and every mutation is a Boomer." )
+	RegisterMutator( eMutator.RAPID_MUTATION, "rapid_mutation", "Rapid Mutation", "Infected variants are far more common, and so are Hive Queens." )
+	RegisterMutator( eMutator.BLOODLUST, "bloodlust", "Bloodlust", "Full heals on kill." )
+	RegisterMutator( eMutator.ADRENALINE, "adrenaline", "Adrenaline", "The infected are permanently stimmed." )
+	RegisterMutator( eMutator.MOON_BOOTS, "moon_boots", "Moon Boots", "Everyone gets a triple jump." )
+	RegisterMutator( eMutator.ROYAL_COURT, "royal_court", "Royal Court", "There is always a Hive Queen. When she dies, another takes her place." )
+	RegisterMutator( eMutator.HEARTBEAT, "heartbeat", "Heartbeat", "Survivors who stay in one spot for too long get revealed." )
+	RegisterMutator( eMutator.TURNCOAT, "turncoat", "Turncoat", "Infected have a 1 in 3 chance to turn back into a survivor when they get a kill." )
+	RegisterMutator( eMutator.SIDEARMS, "sidearms", "Sidearms Only", "Survivors are down to their pistols, but the infected have half health." )
+
+	ServerCommand( "sv_gravity 750" ) // undo low gravity from the last match, convars persist across maps
+
+	string forced = GetConVarString( "inf_mutator_force" ).tolower()
+	if ( forced == "none" )
+		return
+
+	if ( forced != "" )
+	{
+		foreach ( int mutator, MutatorData data in file.mutators )
+		{
+			if ( data.id == forced )
+			{
+				file.mutator = mutator
+				return
+			}
+		}
+		printt( "inf_mutator_force: unknown mutator " + forced )
+		return
+	}
+
+	srand( GetUnixTimestamp() )
+	if ( RandomFloat( 1.0 ) < GetConVarFloat( "inf_mutator_chance" ) )
+		file.mutator = file.mutators.keys().getrandom()
+}
+
+void function RegisterMutator( int mutator, string id, string name, string description )
+{
+	MutatorData data
+	data.id = id
+	data.name = name
+	data.description = description
+	file.mutators[ mutator ] <- data
+}
+
+// called once loadouts are locked in, right before the first infected is picked
+void function Mutators_ApplyRoundStart()
+{
+	if ( file.mutator == eMutator.NONE )
+		return
+
+	MutatorData data = file.mutators[ file.mutator ]
+	Chat_ServerBroadcast( "\x1b[93mMutator: " + data.name + ".\x1b[0m " + data.description, true )
+	foreach ( entity player in GetPlayerArray() )
+		thread AnnounceMutatorToPlayer( player )
+
+	switch ( file.mutator )
+	{
+		case eMutator.LOW_GRAVITY:
+			ServerCommand( "sv_gravity 400" )
+			break
+
+		case eMutator.HEARTBEAT:
+			thread HeartbeatThread()
+			break
+
+		case eMutator.MOON_BOOTS:
+			foreach ( entity player in GetPlayerArrayOfTeam_Alive( INFECTION_TEAM_SURVIVOR ) )
+				thread TripleJumpThread( player )
+			break
+
+		case eMutator.SIDEARMS:
+			// keep whatever pistol they brought, take the primary and anti-titan weapon
+			foreach ( entity player in GetPlayerArrayOfTeam_Alive( INFECTION_TEAM_SURVIVOR ) )
+			{
+				string sidearm = ""
+				foreach ( entity weapon in player.GetMainWeapons() )
+				{
+					string weaponName = weapon.GetWeaponClassName()
+					if ( sidearm == "" && MUTATOR_SIDEARMS.contains( weaponName ) )
+						sidearm = weaponName
+					else
+						player.TakeWeaponNow( weaponName )
+				}
+
+				if ( sidearm == "" ) // shouldn't happen, every loadout has a pistol
+				{
+					sidearm = "mp_weapon_semipistol"
+					player.GiveWeapon( sidearm )
+				}
+				player.SetActiveWeaponByName( sidearm )
+			}
+			break
+	}
+}
+
+void function SetInfectedMaxHealth( entity player, int health )
+{
+	if ( file.mutator == eMutator.SIDEARMS )
+		health /= 2
+	player.SetMaxHealth( health )
+}
+
+void function HeartbeatThread()
+{
+	svGlobal.levelEnt.EndSignal( "GameStateChanged" )
+
+	// where each survivor last moved to and when
+	table<entity, vector> anchorPos
+	table<entity, float> anchorTime
+
+	while ( true )
+	{
+		wait 0.5
+
+		foreach ( entity player, vector pos in clone anchorPos )
+		{
+			if ( !IsValid( player ) || !IsAlive( player ) || player.GetTeam() != INFECTION_TEAM_SURVIVOR )
+			{
+				delete anchorPos[ player ]
+				delete anchorTime[ player ]
+			}
+		}
+
+		foreach ( entity player in GetPlayerArrayOfTeam_Alive( INFECTION_TEAM_SURVIVOR ) )
+		{
+			if ( IsValid( player.GetParent() ) ) // riding the evac ship
+				continue
+
+			vector origin = player.GetOrigin()
+			if ( !( player in anchorPos ) || DistanceSqr( origin, anchorPos[ player ] ) > HEARTBEAT_RADIUS * HEARTBEAT_RADIUS )
+			{
+				anchorPos[ player ] <- origin
+				anchorTime[ player ] <- Time()
+			}
+			else if ( Time() - anchorTime[ player ] >= HEARTBEAT_TIME )
+			{
+				anchorTime[ player ] <- Time() // pings again every HEARTBEAT_TIME until they move
+				thread HeartbeatReveal( player )
+			}
+		}
+	}
+}
+
+// same sonar setup the map hack burn card uses
+void function HeartbeatReveal( entity player )
+{
+	PlayFX( $"exp_sonar_pulse", player.GetOrigin(), < -90.0, 0.0, 0.0 > )
+	EmitSoundAtPositionOnlyToPlayer( TEAM_UNASSIGNED, player.GetOrigin(), player, "Titan_Tone_SonarLock_Impact_Pulse_1P" )
+	NSSendInfoMessageToPlayer( player, "Your heartbeat gave you away! Keep moving." )
+
+	IncrementSonarPerTeam( INFECTION_TEAM_INFECTED )
+	SonarStart( player, player.GetOrigin(), INFECTION_TEAM_INFECTED, player )
+	StatusEffect_AddTimed( player, eStatusEffect.sonar_detected, 1.0, HEARTBEAT_REVEAL_TIME, 0.0 )
+
+	wait HEARTBEAT_REVEAL_TIME
+
+	DecrementSonarPerTeam( INFECTION_TEAM_INFECTED )
+	if ( IsValid( player ) )
+		SonarEnd( player, INFECTION_TEAM_INFECTED )
+}
+
+void function TurncoatPlayer( entity player )
+{
+	WaitFrame() // let the kill callback finish first
+	if ( !IsValid( player ) || !IsAlive( player ) || player.GetTeam() != INFECTION_TEAM_INFECTED || GetGameState() != eGameState.Playing )
+		return
+	// disabled while the infected are still few, or once it's down to the last survivor
+	// counts already include the survivor that was just killed
+	if ( GetPlayerArrayOfTeam( INFECTION_TEAM_INFECTED ).len() < 4 || GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ).len() <= 1 )
+		return
+
+	player.Die()
+	WaitFrame() // give infected threads (highlight etc.) a frame to see the death and clean up
+	if ( !IsValid( player ) || GetGameState() != eGameState.Playing )
+		return
+
+	SetTeam( player, INFECTION_TEAM_SURVIVOR )
+	player.RespawnPlayer( FindSpawnPoint( player, false, false ) )
+	ShouldPanelsBeUsable()
+
+	file.killstreak[ player ] <- 0
+	file.deathstreak[ player ] <- 0
+	player.SetMaxHealth( 100 )
+	player.SetHealth( 100 )
+	player.SetSkin( 0 )
+	player.SetCamo( 0 )
+	if ( !player.IsMechanical() )
+		player.SetBodygroup( player.FindBodyGroup( "head" ), 0 )
+	Highlight_ClearEnemyHighlight( player )
+	Highlight_ClearFriendlyHighlight( player )
+
+	if ( GetPlayerArray().len() < 8 ) // match the low playercount sonar every other survivor has
+	{
+		Highlight_SetEnemyHighlight( player, "enemy_sonar" )
+		StatusEffect_AddEndless( player, eStatusEffect.sonar_detected, 1.0 )
+	}
+
+	NSSendAnnouncementMessageToPlayer( player, "TURNCOAT", "You fought off the infection!", < 0, 0.6, 1 >, 1, 0 )
+	Chat_ServerBroadcast( "\x1b[93m" + player.GetPlayerName() + " fought off the infection and is a survivor again!", true )
+}
+
+void function Mutators_NotifyLateJoiner( entity player )
+{
+	wait 5.0
+	if ( !IsValid( player ) )
+		return
+
+	MutatorData data = file.mutators[ file.mutator ]
+	Chat_ServerPrivateMessage( player, "\x1b[93mMutator: " + data.name + ".\x1b[0m " + data.description, false, true )
+	thread AnnounceMutatorToPlayer( player )
+}
+
+// center screen, delayed so it doesn't get eaten by a vanilla announcement firing at the same time
+void function AnnounceMutatorToPlayer( entity player )
+{
+	wait 1.0
+	if ( !IsValid( player ) )
+		return
+
+	MutatorData data = file.mutators[ file.mutator ]
+	NSSendAnnouncementMessageToPlayer( player, "MUTATOR: " + data.name.toupper(), data.description, < 1, 0.8, 0 >, 1, 0 )
+}
+
+// ===============================================================================
+//
+//
 // PLAYING CODE
 //
 //
@@ -634,6 +909,7 @@ void function SelectFirstInfectedDelayed()
 	ServerCommand( "sv_alltalk 1" )
 	ServerCommand( "slide_step_velocity_reduction 10" )
 	ServerCommand( "sv_gravity 750" )
+	Mutators_ApplyRoundStart()
 
 	int playerCount = GetPlayerArray().len()
 	if ( playerCount <= 1 )
@@ -697,6 +973,7 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 	if ( victim == file.queen )
 	{
 		file.queen = null
+		file.lastQueen = victim
 	}
 
 	if ( !victim.IsPlayer() || !attacker.IsPlayer() || GetGameState() != eGameState.Playing || !IsValid( attacker ) || !IsValid( victim ) )
@@ -708,6 +985,9 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 	{
 		attacker.SetPlayerGameStat( PGS_ASSAULT_SCORE, attacker.GetPlayerGameStat( PGS_ASSAULT_SCORE ) + 1 )
 		SetRoundWinningKillReplayAttacker( attacker )
+
+		if ( file.mutator == eMutator.BLOODLUST && IsAlive( attacker ) )
+			attacker.SetHealth( attacker.GetMaxHealth() )
 
 		if ( attacker.GetTeam() == INFECTION_TEAM_SURVIVOR )
 		{
@@ -755,6 +1035,9 @@ void function InfectionOnPlayerKilled( entity victim, entity attacker, var damag
 		{
 			// attacker is infected and got a kill
 			file.deathstreak[ attacker ] <- 0
+
+			if ( file.mutator == eMutator.TURNCOAT && attacker != file.queen && GetGameState() == eGameState.Playing && RandomInt( 3 ) == 0 )
+				thread TurncoatPlayer( attacker )
 
 			if (
 				DamageInfo_GetDamageSourceIdentifier( damageInfo ) == eDamageSourceId.human_execution && GetGameState() == eGameState.Playing &&
@@ -820,17 +1103,17 @@ void function InfectPlayer( entity player, entity attacker )
 			}
 			if ( infectedCount == 1 )
 			{ // impossible to win without
-				infectedPlayer.SetMaxHealth( 200 )
+				SetInfectedMaxHealth( infectedPlayer, 200 )
 			}
 			else
 			{
 				if ( infectedCount == playerCount )
 				{
-					infectedPlayer.SetMaxHealth( 100 )
+					SetInfectedMaxHealth( infectedPlayer, 100 )
 				}
 				else
 				{
-					infectedPlayer.SetMaxHealth( intHealth )
+					SetInfectedMaxHealth( infectedPlayer, intHealth )
 				}
 			}
 		}
@@ -913,7 +1196,7 @@ void function RespawnInfected( entity player )
 	{ // custom logic for the first infected
 		if ( file.deathstreak[ player ] > 4 )
 		{
-			player.SetMaxHealth( 200 + ( file.deathstreak[ player ] * 10 ) )
+			SetInfectedMaxHealth( player, 200 + ( file.deathstreak[ player ] * 10 ) )
 			if ( file.deathstreak[ player ] % 5 == 0 )
 			{
 				thread DisplayIncreasedHealth( player )
@@ -921,21 +1204,21 @@ void function RespawnInfected( entity player )
 		}
 		else
 		{
-			player.SetMaxHealth( 200 )
+			SetInfectedMaxHealth( player, 200 )
 		}
 	}
 	else
 	{
 		if ( infectedCount == playerCount )
 		{
-			player.SetMaxHealth( 100 )
+			SetInfectedMaxHealth( player, 100 )
 		}
 		else
 		{
-			player.SetMaxHealth( intHealth )
+			SetInfectedMaxHealth( player, intHealth )
 
 			if ( file.deathstreak[ player ] > 4 && infectedCount < 4 )
-				player.SetMaxHealth( intHealth + ( file.deathstreak[ player ] * 10 ) ) // 10 extra health per death after the 4th death, so they spawn with 50, 60, 70 and so on.
+				SetInfectedMaxHealth( player, intHealth + ( file.deathstreak[ player ] * 10 ) ) // 10 extra health per death after the 4th death, so they spawn with 50, 60, 70 and so on.
 		}
 	}
 
@@ -950,7 +1233,19 @@ void function RespawnInfected( entity player )
 
 	player.GiveOffhandWeapon( "melee_pilot_emptyhanded", OFFHAND_MELEE )
 
-	int specialRoll = RandomInt( 5 )
+	int specialOdds = 5
+	int queenOdds = 50
+	if ( file.mutator == eMutator.RAPID_MUTATION )
+	{
+		specialOdds = 2
+		queenOdds = 10
+	}
+	else if ( file.mutator == eMutator.VOLATILE )
+	{
+		specialOdds = 3
+	}
+
+	int specialRoll = RandomInt( specialOdds )
 	bool special = false
 	if ( specialRoll == 0 )
 	{
@@ -961,9 +1256,18 @@ void function RespawnInfected( entity player )
 	if ( IsValid( file.queen ) )
 		queenExists = true
 
-	int queenRoll = RandomInt( 50 )
+	int queenRoll = RandomInt( queenOdds )
 	bool queen = false
-	if ( queenRoll == 0 && !queenExists && infectedCount > 1 )
+	if ( file.mutator == eMutator.ROYAL_COURT )
+	{
+		// always a queen, but don't immediately re-crown the one that just died unless she's alone
+		if ( !queenExists && ( player != file.lastQueen || infectedCount == 1 ) )
+		{
+			queen = true
+			special = false
+		}
+	}
+	else if ( queenRoll == 0 && !queenExists && infectedCount > 1 )
 	{
 		queen = true
 		special = false
@@ -980,6 +1284,8 @@ void function RespawnInfected( entity player )
 				specialType = RandomInt( 4 )
 			}
 		}
+		if ( file.mutator == eMutator.VOLATILE )
+			specialType = 0 // boomer
 		switch ( specialType )
 		{
 			// boomer
@@ -1031,7 +1337,7 @@ void function RespawnInfected( entity player )
 		thread HandleHighlight( player, < 1, 0, 0 >, true )
 		file.queen = player
 		thread TripleJumpThread( player )
-		player.SetMaxHealth( 250 )
+		SetInfectedMaxHealth( player, 250 )
 		foreach ( entity survivorPlayer in GetPlayerArrayOfTeam( INFECTION_TEAM_SURVIVOR ) )
 		{
 			thread NSSendAnnouncementMessageToPlayer_Delayed( survivorPlayer, "HIVE QUEEN DETECTED", "Eliminate it ASAP to weaken the infection!", < 1, 0, 0 >, 1, 0 )
@@ -1090,6 +1396,11 @@ void function RespawnInfected( entity player )
 		}
 		player.SetOrigin( closestSpawnPoint.GetOrigin() )
 	}
+
+	if ( file.mutator == eMutator.ADRENALINE )
+		StimPlayer( player, 9999.9 )
+	if ( file.mutator == eMutator.MOON_BOOTS && player != file.queen ) // queen already has a triple jump
+		thread TripleJumpThread( player )
 
 	thread PlayInfectedSounds( player )
 }
